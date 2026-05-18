@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Overfit — Pure-C# deep learning with zero-allocation inference</title>
-<meta name="description" content="Pure-C# ML framework. 0 bytes allocated per GPT-2 token. 7.6x faster than ONNX Runtime at small batches. No Python, no native deps, AOT-compatible.">
-<meta property="og:title" content="Overfit — Pure-C# ML, 0 bytes per token">
-<meta property="og:description" content="Predictable CPU performance, explicit memory ownership, zero-allocation inference hot paths.">
+<title>Overfit — Run and fine-tune LLMs in pure C#</title>
+<meta name="description" content="Inference and LoRA fine-tuning for GPT-2, Qwen and Llama-family models — pure C#, no Python, no native dependencies, no data egress. Zero-allocation CPU inference on .NET 10.">
+<meta property="og:title" content="Overfit — Run and fine-tune LLMs in pure C#">
+<meta property="og:description" content="No Python. No native dependencies. No data leaving your servers. Zero-allocation CPU LLM inference and fine-tuning for .NET.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -526,9 +526,9 @@
 <div class="hero">
   <div class="container">
     <div class="hero-eyebrow fade-in">deep learning · pure c# · no python</div>
-    <h1 class="fade-in d1">Predictable ML inference<br>for <span class="accent">.NET production</span>.</h1>
+    <h1 class="fade-in d1">Run and fine-tune<br><span class="accent">LLMs in pure C#</span>.</h1>
     <p class="hero-sub fade-in d2">
-      Overfit is a from-scratch deep learning engine for .NET 10. Train in PyTorch or in-process, then run zero-allocation inference with no native dependencies and no Python runtime. AOT-compatible single-binary deployment.
+      No Python. No native dependencies. No data leaving your servers. Overfit runs and LoRA-fine-tunes GPT-2, Qwen and Llama-family models entirely in C# — zero-allocation CPU inference on .NET 10, AOT-compatible single-binary deployment.
     </p>
 
     <div class="metrics fade-in d3">
@@ -547,9 +547,13 @@
     </div>
 
     <div class="cta-row fade-in d4">
-      <a href="https://github.com/DevOnBike/Overfit" class="btn btn-primary">View on GitHub<span class="btn-arrow">→</span></a>
-      <a href="#contact" class="btn">Book a 20-min demo<span class="btn-arrow">→</span></a>
+      <a href="https://github.com/DevOnBike/Overfit#quick-start" class="btn btn-primary">Get started<span class="btn-arrow">→</span></a>
+      <a href="https://github.com/DevOnBike/Overfit" class="btn">View on GitHub<span class="btn-arrow">→</span></a>
     </div>
+    <p class="fade-in d4" style="font-size: 13px; color: var(--fg-muted); margin-top: 20px;">
+      <code>dotnet add package DevOnBike.Overfit</code>
+      &nbsp;·&nbsp; Regulated or enterprise? <a href="#contact">Book a 20-min demo →</a>
+    </p>
   </div>
 </div>
 
@@ -573,9 +577,9 @@ engine.Run(input, output);  <span class="com">// zero-allocation</span></code></
       </div>
 
       <div class="feature">
-        <div class="feature-meta">02 · transformers in pure C#</div>
-        <h3>GPT-2 / Llama / Qwen / Mistral inference, no Python.</h3>
-        <p>Load weights from HuggingFace or directly from GGUF files (F32, F16, BF16, Q8_0, Q4_K, Q6_K). KV-cache decode at 0 bytes per token. Top-10 logit overlap 10/10 vs PyTorch reference (maxAbsDiff = 0.000107).</p>
+        <div class="feature-meta">02 · run + fine-tune llms</div>
+        <h3>GPT-2 / Llama / Qwen / Mistral — inference and LoRA fine-tuning.</h3>
+        <p>Load weights from HuggingFace or directly from GGUF files (F32, F16, BF16, Q8_0, Q4_K, Q6_K). KV-cache decode at 0 bytes per token. Top-10 logit overlap 10/10 vs PyTorch reference (maxAbsDiff = 0.000107). LoRA fine-tuning adapts a base model to your own data — training and inference, both in pure C#.</p>
         <pre><code><span class="kw">using var</span> gpt2    = <span class="typ">Gpt2</span>.LoadSmall(<span class="str">"./models/gpt2"</span>);
 <span class="kw">using var</span> session = gpt2.CreateSession();
 
@@ -598,6 +602,30 @@ model.Eval();
 <span class="kw">using var</span> engine = <span class="typ">InferenceEngine</span>.FromSequential(model, <span class="num">784</span>, <span class="num">10</span>);
 <span class="kw">var</span> prediction = engine.Predict(input);  <span class="com">// zero-alloc</span></code></pre>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     WHY NOT X
+     ============================================================ -->
+<section>
+  <div class="container">
+    <h2>Why not just use…?</h2>
+    <p>Overfit isn't trying to be everything. Here is the honest map of where it fits — and where it does not.</p>
+    <div class="bench">
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>The right choice when…</th><th>Reach for Overfit when…</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>ML.NET</strong></td><td>Classical ML on tabular data — regression, classification, forecasting.</td><td>You need transformer / LLM inference or deep networks, not classical tabular models.</td></tr>
+          <tr><td><strong>ONNX Runtime</strong></td><td>You already have ONNX models and accept a native dependency.</td><td>You want pure-managed, zero-allocation inference — no native binary, no GC pauses at the tail. Overfit imports ONNX models too.</td></tr>
+          <tr><td><strong>llama.cpp / Ollama</strong></td><td>A standalone, language-agnostic CPU LLM server run as a separate process.</td><td>You want the model running inside your .NET process — no sidecar, no IPC, no exposed server to secure.</td></tr>
+          <tr><td><strong>PyTorch</strong></td><td>Training and research; large models; GPU.</td><td>Deploying inference into a .NET production app without the Python stack.</td></tr>
+          <tr><td><strong>OpenAI / Anthropic APIs</strong></td><td>Best model quality, zero infrastructure, and data egress is acceptable.</td><td>Data egress is not acceptable — regulated data, on-prem, no third-party calls.</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -661,6 +689,11 @@ model.Eval();
     <h2>Built for</h2>
 
     <div class="use-cases">
+      <div class="use-case" style="grid-column: 1 / -1;">
+        <span class="use-case-tag">regulated</span>
+        <h3>Regulated industries — healthcare, finance, government</h3>
+        <p>Inference runs inside your process — no third-party API calls, no data egress, no API keys. Data never leaves your boundary by construction, so compliance verifies it once, structurally, instead of auditing every request. Deterministic outputs and file-versioned models give a reproducible audit trail. GDPR / HIPAA / data-residency stop being the blocker — and the EU AI Act reaches full enforcement in August 2026.</p>
+      </div>
       <div class="use-case">
         <span class="use-case-tag">infra</span>
         <h3>Kubernetes anomaly detection</h3>
@@ -723,7 +756,7 @@ model.Eval();
           <li>Self-managed deployment</li>
           <li>Minor version updates included</li>
         </ul>
-        <a href="#contact" class="btn">Get started</a>
+        <a href="#contact" class="btn">Request a license</a>
       </div>
 
       <div class="tier featured">
@@ -786,6 +819,7 @@ model.Eval();
           <label for="usecase">Primary use case</label>
           <select id="usecase" name="usecase">
             <option value="">— select one —</option>
+            <option value="regulated">Regulated industry (healthcare / finance / gov)</option>
             <option value="k8s-monitoring">Kubernetes anomaly detection</option>
             <option value="dotnet-embedded">Embedded ML in .NET service</option>
             <option value="low-latency">Low-latency inference (HFT / ad-tech)</option>
