@@ -568,7 +568,7 @@ GET  /metrics</code></pre>
                     <tbody>
                         <tr><td><strong>Single inference Linear(784→10)</strong></td><td>~7.6× faster than ONNX Runtime</td><td>0 B</td></tr>
                         <tr><td><strong>Qwen2.5‑3B Q4_K_M decode</strong></td><td>~19 tok/s on CPU; RAM footprint in llama.cpp range</td><td>~1 B/token</td></tr>
-                        <tr><td><strong>Bielik-4.5B Q8_0 preset</strong></td><td>Observed ~8 tok/s in current CPU demo context</td><td>decode hot path target: 0 B/token</td></tr>
+                        <tr><td><strong>Bielik-4.5B Q4_K_M preset</strong></td><td>Observed ~11 tok/s in current CPU demo context</td><td>decode hot path target: 0 B/token</td></tr>
                         <tr><td><strong>GPT-2 KV-cache decode</strong></td><td>~6.5× faster than naive O(N²)</td><td>0 B/token</td></tr>
                     </tbody>
                 </table>
