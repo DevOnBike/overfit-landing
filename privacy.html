@@ -3,9 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Zero-allocation LLM inference in pure C# — Overfit</title>
-    <meta name="description" content="A technical build log for Overfit: local LLM decode inside .NET with zero-allocation hot paths, Native AOT goals, Bielik preset and no Python sidecar." />
-    <link rel="canonical" href="https://overfit-ml.com/zero-allocation-llm-inference-csharp.html" />
+    <title>Privacy — Overfit</title>
+    <meta name="description" content="Privacy information for overfit-ml.com." />
     <style>
         :root {
             --bg: #050b11;
@@ -475,15 +474,7 @@
             </div>
         </div>
     </nav>
-
-    <main class="section">
-        <article class="container" style="max-width:900px">
-            <a href="/">← overfit-ml.com</a><h1>Zero-allocation LLM inference in pure C#.</h1><p class="lead">Overfit is the attempt to make local AI feel like a normal .NET library: a model file, a NuGet package, explicit memory ownership and no Python process.</p><h2>What changed recently</h2><p class="muted">The branch now includes a Bielik preset for the ASP.NET local-agent demo: local Bielik GGUF, Polish documents, Polish RAG, C# tool calling, business-decision JSON and metrics.</p><pre class="terminal"><code>cd Demo/LocalAgentAspNetDemo
-.\download-bielik.cmd
-.\download-embedder.cmd
-.\run-bielik.cmd</code></pre><h2>The current result</h2><div class="table"><table><thead><tr><th>Metric</th><th>Headline</th></tr></thead><tbody><tr><td>Decode hot path</td><td>0 B/token target in the benchmark path</td></tr><tr><td>Qwen2.5-3B Q4_K_M</td><td>~19 tok/s on CPU in the current benchmark context</td></tr><tr><td>Bielik-4.5B Q4_K_M</td><td>Observed ~11 tok/s in the current CPU demo context</td></tr><tr><td>Managed heap</td><td>~220 MB live heap for mmap-backed 3B model load path</td></tr></tbody></table></div><p class="muted">This is not a claim that Overfit beats llama.cpp on raw throughput. The point is deployment shape: local AI inside .NET, with RAG, C# tools and structured output, without a separate runtime.</p>
-        </article>
-    </main>
+    <main class="section"><div class="container" style="max-width:850px"><h1>Privacy</h1><p class="lead">This site is intentionally simple.</p><div class="card"><p>The contact form opens your email client using a <code>mailto:</code> link. The site itself does not store form submissions, run a backend database or process payments.</p><p class="muted">If you email devonbike@gmail.com, your message is processed by the email providers involved in delivering that email. Do not include secrets, credentials, private keys or confidential model/data samples in the first message.</p><p class="muted">GitHub Pages and your browser/network provider may collect standard access logs according to their own infrastructure policies.</p></div></div></main>
     <footer class="footer">
         <div class="container footer-inner">
             <div><strong>Overfit</strong><br />Pure C#/.NET local AI runtime for private LLMs, RAG, C# tool calling and guaranteed JSON.</div>

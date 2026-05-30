@@ -3,9 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Zero-allocation LLM inference in pure C# — Overfit</title>
-    <meta name="description" content="A technical build log for Overfit: local LLM decode inside .NET with zero-allocation hot paths, Native AOT goals, Bielik preset and no Python sidecar." />
-    <link rel="canonical" href="https://overfit-ml.com/zero-allocation-llm-inference-csharp.html" />
+    <title>Bielik in pure .NET — Overfit local agent demo</title>
+    <meta name="description" content="Run Bielik as a private Polish RAG and tool-calling agent inside ASP.NET using pure C#/.NET. No Python, no Ollama, no model server, no data egress." />
+    <link rel="canonical" href="https://overfit-ml.com/bielik-dotnet-agent.html" />
+    <meta property="og:title" content="Bielik inside ASP.NET — pure C#/.NET" />
+    <meta property="og:description" content="Polish local LLM + RAG + C# tool calling + well-formed JSON in one ASP.NET process." />
     <style>
         :root {
             --bg: #050b11;
@@ -476,14 +478,63 @@
         </div>
     </nav>
 
-    <main class="section">
-        <article class="container" style="max-width:900px">
-            <a href="/">← overfit-ml.com</a><h1>Zero-allocation LLM inference in pure C#.</h1><p class="lead">Overfit is the attempt to make local AI feel like a normal .NET library: a model file, a NuGet package, explicit memory ownership and no Python process.</p><h2>What changed recently</h2><p class="muted">The branch now includes a Bielik preset for the ASP.NET local-agent demo: local Bielik GGUF, Polish documents, Polish RAG, C# tool calling, business-decision JSON and metrics.</p><pre class="terminal"><code>cd Demo/LocalAgentAspNetDemo
-.\download-bielik.cmd
-.\download-embedder.cmd
-.\run-bielik.cmd</code></pre><h2>The current result</h2><div class="table"><table><thead><tr><th>Metric</th><th>Headline</th></tr></thead><tbody><tr><td>Decode hot path</td><td>0 B/token target in the benchmark path</td></tr><tr><td>Qwen2.5-3B Q4_K_M</td><td>~19 tok/s on CPU in the current benchmark context</td></tr><tr><td>Bielik-4.5B Q4_K_M</td><td>Observed ~11 tok/s in the current CPU demo context</td></tr><tr><td>Managed heap</td><td>~220 MB live heap for mmap-backed 3B model load path</td></tr></tbody></table></div><p class="muted">This is not a claim that Overfit beats llama.cpp on raw throughput. The point is deployment shape: local AI inside .NET, with RAG, C# tools and structured output, without a separate runtime.</p>
-        </article>
-    </main>
+    <header class="hero">
+        <div class="container hero-grid">
+            <div>
+                <span class="eyebrow">Polish local AI demo</span><h1>Bielik running inside <span class="grad">ASP.NET</span>.</h1>
+                <p class="lead">A private Polish RAG and tool-calling agent using Bielik, pure C#/.NET, local documents and well-formed JSON output — without Python, Ollama or a model server.</p>
+                <div class="ctas"><a class="btn primary" href="https://github.com/DevOnBike/Overfit/tree/bielik/Demo/LocalAgentAspNetDemo">Open demo on GitHub</a><a class="btn secondary" href="mailto:devonbike@gmail.com?subject=Bielik%20.NET%20agent%20demo">Discuss integration</a></div>
+            </div>
+            <div class="hero-card">
+                <div class="kicker">5-minute path</div><div class="terminal">
+                    <span class="prompt">$</span> cd Demo/LocalAgentAspNetDemo
+                    <span class="prompt">$</span> .\download-bielik.cmd
+                    <span class="prompt">$</span> .\download-embedder.cmd
+                    <span class="prompt">$</span> .\run-bielik.cmd
+                </div><p class="muted" style="margin-top:14px">The Bielik profile loads <code>appsettings.Bielik.json</code>, Polish documents from <code>Data-pl/</code> and Polish Swagger examples.</p>
+            </div>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <span class="kicker">Flow</span><h2>Local Polish AI in one process.</h2>
+            <div class="grid-4"><div class="card"><div class="icon">📦</div><h3>Load Bielik</h3><p>GGUF model file from disk, mmap-backed, tokenizer and chat template read from the model.</p></div><div class="card"><div class="icon">🔎</div><h3>RAG</h3><p>Index Polish markdown documents and retrieve grounded context from the in-process vector store.</p></div><div class="card"><div class="icon">🛠️</div><h3>C# tools</h3><p>Polish user request becomes a constrained tool call dispatched to a C# handler.</p></div><div class="card"><div class="icon">{}</div><h3>JSON</h3><p>Return a well-formed business-decision JSON object for app integration and automation.</p></div></div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <span class="kicker">Try these endpoints</span><h2>Swagger or curl.</h2>
+            <div class="grid-2">
+                <div class="code-card">
+                    <pre><code># RAG over Polish documents
+curl -X POST http://localhost:5234/rag/query ^
+  -H "Content-Type: application/json" ^
+  -d "{ \"question\": \"Ile dni ma klient z UE na odstąpienie od umowy?\", \"topK\": 4 }"
+
+# C# tool call from Polish request
+curl -X POST http://localhost:5234/agent ^
+  -H "Content-Type: application/json" ^
+  -d "{ \"message\": \"Załóż zgłoszenie reklamacyjne o wysokim priorytecie dla klienta anna@firma.pl.\" }"
+
+# Business-decision JSON
+curl -X POST http://localhost:5234/decision/refund ^
+  -H "Content-Type: application/json" ^
+  -d "{ \"message\": \"Klient z UE kupił produkt 10 dni temu, nie był używany, chce odstąpić od umowy.\" }"</code></pre>
+                </div>
+                <div class="card warning"><div class="icon">⚠️</div><h3>Honest demo notes</h3><ul><li>Bielik-4.5B Q4_K_M is the practical CPU demo target.</li><li>Observed decode speed is around ~11 tok/s in the current CPU demo context.</li><li>MiniLM is used as the demo embedder; a Polish/multilingual embedder is the next better preset.</li><li>The JSON guarantee is about well-formed JSON structure; full field-level schema enforcement is separate.</li></ul></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <span class="kicker">Why it matters</span><h2>Bielik without a separate AI stack.</h2>
+            <div class="grid-3"><div class="card"><h3>For Polish documents</h3><p>Policies, support FAQs, contracts, claims, procedures and internal knowledge bases.</p></div><div class="card"><h3>For .NET teams</h3><p>ASP.NET, WPF, Blazor, desktop and internal enterprise apps that already live in .NET.</p></div><div class="card"><h3>For controlled environments</h3><p>On-prem, regulated, air-gapped or procurement-heavy environments where external APIs and sidecars are hard to approve.</p></div></div>
+        </div>
+    </section>
+
     <footer class="footer">
         <div class="container footer-inner">
             <div><strong>Overfit</strong><br />Pure C#/.NET local AI runtime for private LLMs, RAG, C# tool calling and guaranteed JSON.</div>

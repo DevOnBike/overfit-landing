@@ -1,1183 +1,602 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overfit — Run, fine-tune & build LLM agents in pure C#</title>
-    <meta name="description" content="Run, fine-tune and build agents on GPT-2, Qwen, Llama and Mistral models — pure C#, no Python, no native dependencies, no data egress. In-process RAG, tool calling and guaranteed JSON. Zero-allocation CPU inference on .NET 10.">
-    <meta property="og:title" content="Overfit — Run, fine-tune & build LLM agents in pure C#">
-    <meta property="og:description" content="No Python. No native binary. No data leaving your servers. In-process LLM inference, fine-tuning, RAG, tool calling and guaranteed-valid JSON for .NET — zero-allocation, CPU-only, AOT.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Overfit — Private LLMs, Bielik, RAG & Agents inside pure C#/.NET</title>
+    <meta name="description" content="Overfit embeds private LLMs, Bielik, RAG, C# tool calling and guaranteed JSON directly inside your .NET app. No Python, no Ollama, no model server, no data egress." />
+    <link rel="canonical" href="https://overfit-ml.com/" />
+    <meta property="og:title" content="Overfit — Private LLMs inside pure C#/.NET" />
+    <meta property="og:description" content="Run Bielik and other local LLMs, RAG, C# tool calling and guaranteed JSON directly inside ASP.NET/.NET — no Python, no Ollama, no model server." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://overfit-ml.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
     <style>
-           :root {
-               --bg: #0a0a0a;
-               --bg-card: #141414;
-               --fg: #e8e8e8;
-               --fg-dim: #b0b0b0;
-               --fg-muted: #6b6b6b;
-               --border: #1f1f1f;
-               --border-strong: #2f2f2f;
-               --accent: #ff8800;
-               --accent-dim: #cc6a00;
-               --success: #5ac26b;
-               --danger: #d04848;
-           }
-
-           *, *::before, *::after {
-               box-sizing: border-box;
-               margin: 0;
-               padding: 0;
-           }
-
-           html {
-               font-size: 15px;
-               scroll-behavior: smooth;
-           }
-
-           body {
-               background: var(--bg);
-               color: var(--fg);
-               font-family: 'JetBrains Mono', ui-monospace, 'Menlo', monospace;
-               font-weight: 400;
-               line-height: 1.6;
-               min-height: 100vh;
-               -webkit-font-smoothing: antialiased;
-               text-rendering: geometricPrecision;
-           }
-
-           ::selection {
-               background: var(--accent);
-               color: var(--bg);
-           }
-
-           a {
-               color: var(--accent);
-               text-decoration: none;
-               border-bottom: 1px solid transparent;
-               transition: border-color 80ms;
-           }
-
-               a:hover {
-                   border-bottom-color: var(--accent);
-               }
-
-           .container {
-               max-width: 760px;
-               margin: 0 auto;
-               padding: 0 24px;
-           }
-
-           /* ============================================================
-        HEADER
-        ============================================================ */
-           header {
-               border-bottom: 1px solid var(--border);
-               padding: 18px 0;
-               position: sticky;
-               top: 0;
-               background: rgba(10, 10, 10, 0.92);
-               backdrop-filter: blur(8px);
-               -webkit-backdrop-filter: blur(8px);
-               z-index: 10;
-           }
-
-               header .container {
-                   display: flex;
-                   align-items: center;
-                   justify-content: space-between;
-               }
-
-           .logo {
-               font-weight: 700;
-               font-size: 16px;
-               letter-spacing: -0.02em;
-           }
-
-               .logo::before {
-                   content: "$ ";
-                   color: var(--accent);
-               }
-
-           nav {
-               display: flex;
-               gap: 24px;
-               font-size: 13px;
-           }
-
-               nav a {
-                   color: var(--fg-dim);
-                   border-bottom: none;
-               }
-
-                   nav a:hover {
-                       color: var(--accent);
-                   }
-
-           @media (max-width: 600px) {
-               nav {
-                   display: none;
-               }
-           }
-
-           /* ============================================================
-        HERO
-        ============================================================ */
-           .hero {
-               padding: 80px 0 40px;
-               border-bottom: 1px solid var(--border);
-           }
-
-           .hero-eyebrow {
-               color: var(--fg-muted);
-               font-size: 12px;
-               letter-spacing: 0.1em;
-               text-transform: uppercase;
-               margin-bottom: 24px;
-           }
-
-               .hero-eyebrow::before {
-                   content: "// ";
-                   color: var(--accent);
-               }
-
-           h1 {
-               font-size: clamp(32px, 5vw, 44px);
-               font-weight: 700;
-               line-height: 1.15;
-               letter-spacing: -0.025em;
-               margin-bottom: 24px;
-           }
-
-               h1 .accent {
-                   color: var(--accent);
-               }
-
-           .hero-sub {
-               font-size: 16px;
-               color: var(--fg-dim);
-               max-width: 600px;
-               margin-bottom: 40px;
-           }
-
-           .metrics {
-               display: grid;
-               grid-template-columns: repeat(3, 1fr);
-               gap: 0;
-               margin: 48px 0;
-               border: 1px solid var(--border-strong);
-               background: var(--bg-card);
-           }
-
-           .metric {
-               padding: 28px 20px;
-               border-right: 1px solid var(--border-strong);
-               text-align: left;
-           }
-
-               .metric:last-child {
-                   border-right: none;
-               }
-
-           .metric-value {
-               font-size: clamp(32px, 5vw, 42px);
-               font-weight: 700;
-               line-height: 1;
-               color: var(--accent);
-               letter-spacing: -0.02em;
-               margin-bottom: 10px;
-           }
-
-           .metric-label {
-               font-size: 11px;
-               color: var(--fg-muted);
-               letter-spacing: 0.08em;
-               text-transform: uppercase;
-               line-height: 1.5;
-           }
-
-           @media (max-width: 600px) {
-               .metrics {
-                   grid-template-columns: 1fr;
-               }
-
-               .metric {
-                   border-right: none;
-                   border-bottom: 1px solid var(--border-strong);
-               }
-
-                   .metric:last-child {
-                       border-bottom: none;
-                   }
-           }
-
-           .cta-row {
-               display: flex;
-               gap: 16px;
-               flex-wrap: wrap;
-               margin-top: 32px;
-           }
-
-           .btn {
-               display: inline-flex;
-               align-items: center;
-               padding: 12px 22px;
-               font-family: inherit;
-               font-size: 14px;
-               font-weight: 500;
-               border: 1px solid var(--accent);
-               background: transparent;
-               color: var(--accent);
-               cursor: pointer;
-               transition: all 80ms;
-               text-decoration: none;
-           }
-
-               .btn:hover {
-                   background: var(--accent);
-                   color: var(--bg);
-                   border-bottom-color: var(--accent);
-               }
-
-           .btn-primary {
-               background: var(--accent);
-               color: var(--bg);
-           }
-
-               .btn-primary:hover {
-                   background: var(--accent-dim);
-                   border-color: var(--accent-dim);
-               }
-
-           .btn-arrow {
-               margin-left: 8px;
-               transition: transform 120ms;
-           }
-
-           .btn:hover .btn-arrow {
-               transform: translateX(3px);
-           }
-
-           /* ============================================================
-        SECTION COMMON
-        ============================================================ */
-           section {
-               padding: 64px 0;
-               border-bottom: 1px solid var(--border);
-           }
-
-           h2 {
-               font-size: 11px;
-               color: var(--fg-muted);
-               letter-spacing: 0.15em;
-               text-transform: uppercase;
-               font-weight: 500;
-               margin-bottom: 28px;
-           }
-
-               h2::before {
-                   content: "▎ ";
-                   color: var(--accent);
-                   margin-left: -10px;
-               }
-
-           h3 {
-               font-size: 18px;
-               font-weight: 500;
-               margin-bottom: 12px;
-               letter-spacing: -0.015em;
-           }
-
-           p {
-               color: var(--fg-dim);
-               margin-bottom: 16px;
-           }
-
-               p:last-child {
-                   margin-bottom: 0;
-               }
-
-           /* ============================================================
-        WHAT IT DOES — feature blocks
-        ============================================================ */
-           .features {
-               display: grid;
-               gap: 32px;
-           }
-
-           .feature {
-               padding-left: 20px;
-               border-left: 2px solid var(--border-strong);
-               transition: border-color 80ms;
-           }
-
-               .feature:hover {
-                   border-left-color: var(--accent);
-               }
-
-           .feature-meta {
-               font-size: 11px;
-               color: var(--fg-muted);
-               letter-spacing: 0.08em;
-               text-transform: uppercase;
-               margin-bottom: 6px;
-           }
-
-           pre, code {
-               font-family: inherit;
-           }
-
-           pre {
-               background: var(--bg-card);
-               border: 1px solid var(--border);
-               padding: 16px 20px;
-               margin-top: 16px;
-               overflow-x: auto;
-               font-size: 12.5px;
-               line-height: 1.65;
-               color: var(--fg);
-           }
-
-           code {
-               background: var(--bg-card);
-               padding: 1px 6px;
-               font-size: 0.9em;
-               color: var(--accent);
-           }
-
-           pre code {
-               background: none;
-               padding: 0;
-               color: inherit;
-           }
-
-           .kw {
-               color: #c792ea;
-           }
-
-           .str {
-               color: #9ccc65;
-           }
-
-           .com {
-               color: var(--fg-muted);
-               font-style: italic;
-           }
-
-           .typ {
-               color: #82aaff;
-           }
-
-           .num {
-               color: var(--accent);
-           }
-
-           /* ============================================================
-        BENCHMARK TABLE
-        ============================================================ */
-           .bench {
-               border: 1px solid var(--border-strong);
-               margin-top: 16px;
-               overflow-x: auto;
-           }
-
-           table {
-               width: 100%;
-               border-collapse: collapse;
-               font-size: 13px;
-           }
-
-           th, td {
-               text-align: left;
-               padding: 12px 16px;
-               border-bottom: 1px solid var(--border);
-           }
-
-           th {
-               background: var(--bg-card);
-               color: var(--fg-muted);
-               font-size: 11px;
-               letter-spacing: 0.08em;
-               text-transform: uppercase;
-               font-weight: 500;
-           }
-
-           td:first-child {
-               color: var(--fg);
-           }
-
-           .win {
-               color: var(--accent);
-               font-weight: 500;
-           }
-
-           .baseline {
-               color: var(--fg-muted);
-           }
-
-           tr:last-child td {
-               border-bottom: none;
-           }
-
-           .bench-note {
-               font-size: 12px;
-               color: var(--fg-muted);
-               margin-top: 12px;
-               padding-left: 4px;
-           }
-
-           /* ============================================================
-        USE CASES
-        ============================================================ */
-           .use-cases {
-               display: grid;
-               grid-template-columns: 1fr 1fr;
-               gap: 1px;
-               background: var(--border-strong);
-               border: 1px solid var(--border-strong);
-           }
-
-           @media (max-width: 600px) {
-               .use-cases {
-                   grid-template-columns: 1fr;
-               }
-           }
-
-           .use-case {
-               background: var(--bg);
-               padding: 24px;
-               transition: background 80ms;
-           }
-
-               .use-case:hover {
-                   background: var(--bg-card);
-               }
-
-           .use-case-tag {
-               display: inline-block;
-               font-size: 10px;
-               letter-spacing: 0.1em;
-               text-transform: uppercase;
-               color: var(--accent);
-               border: 1px solid var(--accent);
-               padding: 2px 8px;
-               margin-bottom: 14px;
-           }
-
-           .use-case h3 {
-               font-size: 15px;
-               margin-bottom: 8px;
-           }
-
-           .use-case p {
-               font-size: 13px;
-               line-height: 1.55;
-               color: var(--fg-dim);
-           }
-
-           /* ============================================================
-        NOT FOR — honesty section
-        ============================================================ */
-           .not-list {
-               list-style: none;
-               margin-top: 8px;
-           }
-
-               .not-list li {
-                   color: var(--fg-dim);
-                   padding: 10px 0 10px 24px;
-                   border-bottom: 1px dashed var(--border);
-                   position: relative;
-                   font-size: 14px;
-               }
-
-                   .not-list li::before {
-                       content: "×";
-                       color: var(--danger);
-                       position: absolute;
-                       left: 0;
-                       top: 10px;
-                       font-weight: 700;
-                   }
-
-                   .not-list li:last-child {
-                       border-bottom: none;
-                   }
-
-           /* ============================================================
-        PRICING
-        ============================================================ */
-           .pricing {
-               display: grid;
-               grid-template-columns: repeat(3, 1fr);
-               gap: 1px;
-               background: var(--border-strong);
-               border: 1px solid var(--border-strong);
-           }
-
-           @media (max-width: 700px) {
-               .pricing {
-                   grid-template-columns: 1fr;
-               }
-           }
-
-           .tier {
-               background: var(--bg);
-               padding: 28px 24px;
-               display: flex;
-               flex-direction: column;
-           }
-
-               .tier.featured {
-                   background: var(--bg-card);
-                   position: relative;
-               }
-
-                   .tier.featured::before {
-                       content: "RECOMMENDED";
-                       position: absolute;
-                       top: 0;
-                       left: 0;
-                       right: 0;
-                       background: var(--accent);
-                       color: var(--bg);
-                       font-size: 10px;
-                       letter-spacing: 0.12em;
-                       text-align: center;
-                       padding: 4px 0;
-                       font-weight: 700;
-                   }
-
-               .tier.featured {
-                   padding-top: 48px;
-               }
-
-           .tier-name {
-               font-size: 12px;
-               letter-spacing: 0.1em;
-               text-transform: uppercase;
-               color: var(--fg-muted);
-               margin-bottom: 12px;
-           }
-
-           .tier-price {
-               font-size: 32px;
-               font-weight: 700;
-               color: var(--fg);
-               line-height: 1;
-               margin-bottom: 4px;
-               letter-spacing: -0.02em;
-           }
-
-           .tier.featured .tier-price {
-               color: var(--accent);
-           }
-
-           .tier-period {
-               font-size: 12px;
-               color: var(--fg-muted);
-               margin-bottom: 24px;
-           }
-
-           .tier-features {
-               list-style: none;
-               margin-bottom: 24px;
-               flex-grow: 1;
-           }
-
-               .tier-features li {
-                   font-size: 13px;
-                   color: var(--fg-dim);
-                   padding: 6px 0 6px 18px;
-                   position: relative;
-                   line-height: 1.45;
-               }
-
-                   .tier-features li::before {
-                       content: "›";
-                       color: var(--accent);
-                       position: absolute;
-                       left: 0;
-                       font-weight: 700;
-                   }
-
-           .tier .btn {
-               width: 100%;
-               justify-content: center;
-               text-align: center;
-           }
-
-           /* ============================================================
-        CONTACT FORM
-        ============================================================ */
-           form {
-               margin-top: 24px;
-               display: grid;
-               gap: 16px;
-           }
-
-           .form-row {
-               display: grid;
-               grid-template-columns: 1fr 1fr;
-               gap: 16px;
-           }
-
-           @media (max-width: 600px) {
-               .form-row {
-                   grid-template-columns: 1fr;
-               }
-           }
-
-           label {
-               display: block;
-               font-size: 11px;
-               color: var(--fg-muted);
-               letter-spacing: 0.08em;
-               text-transform: uppercase;
-               margin-bottom: 6px;
-           }
-
-               label .req {
-                   color: var(--accent);
-               }
-
-           input, select, textarea {
-               width: 100%;
-               background: var(--bg-card);
-               border: 1px solid var(--border-strong);
-               color: var(--fg);
-               padding: 11px 14px;
-               font-family: inherit;
-               font-size: 14px;
-               transition: border-color 80ms;
-           }
-
-               input:focus, select:focus, textarea:focus {
-                   outline: none;
-                   border-color: var(--accent);
-               }
-
-           textarea {
-               resize: vertical;
-               min-height: 100px;
-               font-family: inherit;
-           }
-
-           select {
-               cursor: pointer;
-           }
-
-           .form-hint {
-               font-size: 12px;
-               color: var(--fg-muted);
-               margin-top: 8px;
-           }
-
-           .form-success {
-               background: var(--bg-card);
-               border: 1px solid var(--success);
-               color: var(--success);
-               padding: 16px;
-               display: none;
-           }
-
-               .form-success.show {
-                   display: block;
-               }
-
-           form.submitted {
-               display: none;
-           }
-
-           /* ============================================================
-        FOOTER
-        ============================================================ */
-           footer {
-               padding: 48px 0 64px;
-               color: var(--fg-muted);
-               font-size: 12px;
-           }
-
-               footer .container {
-                   display: flex;
-                   justify-content: space-between;
-                   flex-wrap: wrap;
-                   gap: 24px;
-               }
-
-           .footer-links {
-               display: flex;
-               gap: 24px;
-               flex-wrap: wrap;
-           }
-
-               .footer-links a {
-                   color: var(--fg-muted);
-               }
-
-                   .footer-links a:hover {
-                       color: var(--accent);
-                   }
-
-           /* ============================================================
-        SCROLL ANIMATIONS — minimal, intentional
-        ============================================================ */
-           @media (prefers-reduced-motion: no-preference) {
-               .fade-in {
-                   opacity: 0;
-                   transform: translateY(8px);
-                   animation: fadeIn 600ms ease-out forwards;
-               }
-
-                   .fade-in.d1 {
-                       animation-delay: 80ms;
-                   }
-
-                   .fade-in.d2 {
-                       animation-delay: 160ms;
-                   }
-
-                   .fade-in.d3 {
-                       animation-delay: 240ms;
-                   }
-
-                   .fade-in.d4 {
-                       animation-delay: 320ms;
-                   }
-
-               @keyframes fadeIn {
-                   to {
-                       opacity: 1;
-                       transform: translateY(0);
-                   }
-               }
-           }
-
-           /* Subtle terminal cursor blink in logo */
-           .logo::after {
-               content: "_";
-               color: var(--accent);
-               animation: blink 1.2s steps(2) infinite;
-               margin-left: 2px;
-           }
-
-           @keyframes blink {
-               50% {
-                   opacity: 0;
-               }
-           }
+        :root {
+            --bg: #050b11;
+            --panel: #0b1721;
+            --text: #eafcff;
+            --muted: #9bb8c6;
+            --line: rgba(118,226,255,.24);
+            --cyan: #65e8ff;
+            --blue: #7aa7ff;
+            --violet: #b48cff;
+            --green: #53f39b;
+            --amber: #ffc857;
+            --shadow: 0 0 44px rgba(101,232,255,.18)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+            background: radial-gradient(circle at 18% 4%,rgba(101,232,255,.18),transparent 27rem),radial-gradient(circle at 86% 0%,rgba(180,140,255,.16),transparent 30rem),linear-gradient(180deg,#041018 0%,#07131c 44%,#05080d 100%);
+            color: var(--text);
+            line-height: 1.55
+        }
+
+            body:before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                opacity: .22;
+                background-image: linear-gradient(rgba(101,232,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(101,232,255,.08) 1px,transparent 1px);
+                background-size: 48px 48px;
+                mask-image: linear-gradient(180deg,black,transparent 82%)
+            }
+
+        a {
+            color: var(--cyan);
+            text-decoration: none
+        }
+
+            a:hover {
+                text-decoration: underline
+            }
+
+        .container {
+            width: min(1180px,calc(100% - 36px));
+            margin-inline: auto
+        }
+
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            border-bottom: 1px solid var(--line);
+            background: rgba(5,11,17,.78);
+            backdrop-filter: blur(16px)
+        }
+
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 14px 0
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+            font-weight: 950;
+            letter-spacing: .08em;
+            text-transform: uppercase
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg,rgba(101,232,255,.22),rgba(180,140,255,.16));
+            box-shadow: var(--shadow)
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 14px
+        }
+
+            .nav-links a {
+                color: var(--muted)
+            }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            color: var(--text);
+            background: rgba(255,255,255,.035);
+            font-weight: 800;
+            text-decoration: none !important
+        }
+
+            .btn.primary {
+                background: linear-gradient(135deg,var(--cyan),var(--blue));
+                color: #031018;
+                border-color: transparent;
+                box-shadow: 0 0 34px rgba(101,232,255,.3)
+            }
+
+            .btn.secondary {
+                background: rgba(101,232,255,.08)
+            }
+
+        .hero {
+            padding: 78px 0 44px
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.12fr .88fr;
+            gap: 28px;
+            align-items: stretch
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 8px 12px;
+            color: var(--cyan);
+            background: rgba(101,232,255,.07);
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .08em
+        }
+
+        h1 {
+            font-size: clamp(42px,7vw,86px);
+            line-height: .96;
+            margin: 22px 0 18px;
+            letter-spacing: -.06em
+        }
+
+        h2 {
+            font-size: clamp(32px,4.8vw,56px);
+            line-height: 1.02;
+            letter-spacing: -.045em;
+            margin: 0 0 16px
+        }
+
+        h3 {
+            font-size: 21px;
+            margin: 0 0 10px
+        }
+
+        .grad {
+            background: linear-gradient(135deg,#fff 12%,var(--cyan),var(--violet));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent
+        }
+
+        .lead {
+            font-size: clamp(18px,2.15vw,24px);
+            color: #d9f6ff;
+            max-width: 900px;
+            margin: 0 0 24px
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .ctas {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 24px 0
+        }
+
+        .card, .hero-card, .stat, .package, .code-card {
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg,rgba(14,32,45,.88),rgba(8,18,27,.88));
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 22px
+        }
+
+        .terminal {
+            padding: 18px;
+            border-radius: 18px;
+            background: #02070b;
+            border: 1px solid rgba(101,232,255,.22);
+            color: #e3fbff;
+            font-family: "JetBrains Mono","SFMono-Regular",Consolas,monospace;
+            font-size: 14px;
+            overflow: auto
+        }
+
+        .prompt {
+            color: var(--green)
+        }
+
+        .no-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 22px 0 0
+        }
+
+            .no-strip span, .pill {
+                border: 1px solid rgba(101,232,255,.25);
+                background: rgba(101,232,255,.07);
+                color: #cbf8ff;
+                border-radius: 999px;
+                padding: 8px 10px;
+                font-size: 13px;
+                font-weight: 800
+            }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(6,1fr);
+            gap: 12px;
+            margin: 28px 0
+        }
+
+        .stat {
+            min-height: 112px
+        }
+
+            .stat strong {
+                display: block;
+                font-size: clamp(25px,3vw,38px);
+                line-height: 1;
+                color: var(--cyan);
+                letter-spacing: -.04em
+            }
+
+            .stat span {
+                display: block;
+                margin-top: 8px;
+                color: var(--muted);
+                font-size: 13px
+            }
+
+        .section {
+            padding: 64px 0;
+            border-top: 1px solid rgba(118,226,255,.12)
+        }
+
+        .section-intro {
+            font-size: 18px;
+            color: var(--muted);
+            max-width: 880px
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 16px;
+            margin-top: 28px
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 16px;
+            margin-top: 28px
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 18px;
+            margin-top: 28px
+        }
+
+        .icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg,rgba(101,232,255,.18),rgba(180,140,255,.16));
+            border: 1px solid var(--line);
+            margin-bottom: 16px;
+            font-size: 22px
+        }
+
+        .kicker {
+            color: var(--cyan);
+            font-weight: 950;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: .08em
+        }
+
+        .card p, .package p {
+            color: var(--muted);
+            margin: 0
+        }
+
+        .card ul, .package ul {
+            color: var(--muted);
+            padding-left: 20px;
+            margin: 12px 0 0
+        }
+
+        .endpoint-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 10px;
+            margin-top: 16px
+        }
+
+        .endpoint {
+            font-family: "JetBrains Mono",Consolas,monospace;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.035);
+            border-radius: 14px;
+            padding: 12px;
+            color: #dffbff
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap
+        }
+
+        code {
+            font-family: "JetBrains Mono","SFMono-Regular",Consolas,monospace
+        }
+
+        .table {
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            margin-top: 24px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px
+        }
+
+        th, td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(118,226,255,.12);
+            text-align: left
+        }
+
+        th {
+            color: #dffbff;
+            background: rgba(101,232,255,.07)
+        }
+
+        td {
+            color: var(--muted)
+        }
+
+            td strong {
+                color: var(--text)
+            }
+
+        .highlight {
+            border-color: rgba(83,243,155,.35);
+            background: linear-gradient(180deg,rgba(83,243,155,.09),rgba(14,32,45,.86))
+        }
+
+        .warning {
+            border-color: rgba(255,200,87,.36);
+            background: linear-gradient(180deg,rgba(255,200,87,.09),rgba(14,32,45,.86))
+        }
+
+        .form {
+            display: grid;
+            gap: 12px;
+            margin-top: 20px
+        }
+
+        input, textarea, select {
+            width: 100%;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.04);
+            color: var(--text);
+            border-radius: 14px;
+            padding: 13px 14px;
+            font: inherit
+        }
+
+        textarea {
+            min-height: 130px;
+            resize: vertical
+        }
+
+        .footer {
+            border-top: 1px solid var(--line);
+            padding: 28px 0 44px;
+            color: var(--muted)
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap
+        }
+
+        @media(max-width:1020px) {
+            .hero-grid, .grid-4, .grid-3, .grid-2 {
+                grid-template-columns: 1fr
+            }
+
+            .stats {
+                grid-template-columns: repeat(2,1fr)
+            }
+
+            .endpoint-grid {
+                grid-template-columns: 1fr
+            }
+
+            .nav-links {
+                display: none
+            }
+        }
+
+        @media(max-width:560px) {
+            .stats {
+                grid-template-columns: 1fr
+            }
+
+            .hero {
+                padding-top: 48px
+            }
+        }
     </style>
 </head>
 <body>
+    <nav class="nav">
+        <div class="container nav-inner">
+            <a class="logo" href="/"><span class="logo-mark">Ø</span><span>Overfit</span></a>
+            <div class="nav-links">
+                <a href="/#bielik">Bielik demo</a><a href="/#demo">ASP.NET demo</a><a href="/#features">Features</a><a href="/#benchmarks">Benchmarks</a><a href="/bielik-dotnet-agent.html">Bielik page</a><a href="/enterprise-dotnet-ai-integration.html">Integration</a><a href="#contact">Contact</a><a href="https://github.com/DevOnBike/Overfit">GitHub</a>
+            </div>
+        </div>
+    </nav>
 
-    <header>
-        <div class="container">
-            <div class="logo">overfit</div>
-            <nav>
-                <a href="#benchmarks">benchmarks</a>
-                <a href="zero-allocation-llm-inference-csharp.html">blog</a>
-                <a href="#pricing">pricing</a>
-                <a href="#contact">contact</a>
-                <a href="https://github.com/DevOnBike/Overfit">github</a>
-            </nav>
+    <header class="hero">
+        <div class="container hero-grid">
+            <div>
+                <span class="eyebrow">Bielik · pure C# · private AI · no sidecar</span>
+                <h1>Run private LLMs inside <span class="grad">your .NET app</span>.</h1>
+                <p class="lead">Overfit runs Bielik, Qwen, Llama and Mistral-style local LLMs, RAG, C# tool calling and guaranteed JSON directly inside your process — no Python, no Ollama, no model server, no native binary, no data egress.</p>
+                <div class="ctas"><a class="btn primary" href="https://github.com/DevOnBike/Overfit/tree/bielik/Demo/LocalAgentAspNetDemo">Run Bielik demo</a><a class="btn secondary" href="https://github.com/DevOnBike/Overfit">View on GitHub</a><a class="btn" href="#contact">Book integration review</a></div>
+                <div class="terminal"><span class="prompt">$</span> dotnet add package DevOnBike.Overfit</div>
+                <div class="no-strip"><span>No Python</span><span>No Ollama</span><span>No model server</span><span>No native binary</span><span>No data egress</span><span>No CUDA</span><span>No vendor lock-in</span></div>
+            </div><div class="hero-card highlight">
+                <div class="kicker">New demo</div><h2 style="font-size:35px">Bielik inside ASP.NET.</h2>
+                <p class="muted">A Polish local-agent preset loads Bielik from GGUF, indexes Polish documents, answers with RAG, calls C# tools and returns well-formed JSON — all in one ASP.NET process.</p>
+                <div class="terminal" style="margin-top:18px">
+                    <span class="prompt">$</span> cd Demo/LocalAgentAspNetDemo
+                    <span class="prompt">$</span> .\download-bielik.cmd
+                    <span class="prompt">$</span> .\download-embedder.cmd
+                    <span class="prompt">$</span> .\run-bielik.cmd
+                </div>
+            </div>
+        </div>
+        <div class="container stats">
+            <div class="stat"><strong>0 B</strong><span>allocated per token on the decode hot path</span></div>
+            <div class="stat"><strong>7.6×</strong><span>faster than ONNX Runtime on single Linear inference</span></div>
+            <div class="stat"><strong>~19 tok/s</strong><span>Qwen2.5‑3B Q4_K_M on CPU</span></div>
+            <div class="stat"><strong>~220 MB</strong><span>live managed heap for mmap-backed 3B load path</span></div>
+            <div class="stat"><strong>100%</strong><span>pure C# / .NET 10 runtime path</span></div>
+            <div class="stat"><strong>1e‑4</strong><span>ONNX output parity vs PyTorch</span></div>
         </div>
     </header>
 
-    <!-- ============================================================
-         HERO
-         ============================================================ -->
-    <div class="hero">
+    <section class="section" id="bielik">
         <div class="container">
-            <div class="hero-eyebrow fade-in">deep learning · pure c# · no python</div>
-            <h1 class="fade-in d1">Run, fine-tune &amp; build agents<br><span class="accent">on LLMs in pure C#</span>.</h1>
-            <p class="hero-sub fade-in d2">
-                No Python. No native dependencies. No data leaving your servers. Overfit runs and LoRA-fine-tunes GPT-2, Qwen, Llama and Mistral models entirely in C# — and builds in-process agents on them: RAG, tool calling, and guaranteed-valid JSON. Zero-allocation CPU inference on .NET 10, AOT-compatible single-binary deployment.
-            </p>
+            <span class="kicker">Bielik local agent</span><h2>Polish RAG, tools and JSON — without Python.</h2>
+            <p class="section-intro">The Bielik preset is the most practical Polish demo: local Bielik GGUF, Polish documents, RAG, C# tool calling, business-decision JSON and metrics from one ASP.NET service.</p>
+            <div class="grid-2">
+                <div class="code-card">
+                    <pre><code>cd Demo/LocalAgentAspNetDemo
+.\download-bielik.cmd      # Bielik GGUF -> C:\bielik
+.\download-embedder.cmd    # MiniLM embedder -> C:\minilm
+.\run-bielik.cmd           # launch-profile bielik
 
-            <div class="metrics fade-in d3">
-                <div class="metric">
-                    <div class="metric-value">0 B</div>
-                    <div class="metric-label">allocated per GPT-2 token<br>(KV-cache decode)</div>
+# Try:
+POST /rag/query
+POST /agent
+POST /decision/refund
+GET  /metrics</code></pre>
                 </div>
-                <div class="metric">
-                    <div class="metric-value">7.6×</div>
-                    <div class="metric-label">faster than ONNX Runtime<br>(Linear 784→10 inference)</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-value">0</div>
-                    <div class="metric-label">native deps. no Python.<br>AOT compatible.</div>
-                </div>
-            </div>
-
-            <div class="cta-row fade-in d4">
-                <a href="https://github.com/DevOnBike/Overfit#quick-start" class="btn btn-primary">Get started<span class="btn-arrow">→</span></a>
-                <a href="https://github.com/DevOnBike/Overfit" class="btn">View on GitHub<span class="btn-arrow">→</span></a>
-            </div>
-            <p class="fade-in d4" style="font-size: 13px; color: var(--fg-muted); margin-top: 20px;">
-                <code>dotnet add package DevOnBike.Overfit</code>
-                &nbsp;·&nbsp; Regulated or enterprise? <a href="#contact">Book a 20-min demo →</a>
-            </p>
-        </div>
-    </div>
-
-    <!-- ============================================================
-         WHAT IT DOES
-         ============================================================ -->
-    <section>
-        <div class="container">
-            <h2>What it does</h2>
-
-            <div class="features">
-                <div class="feature">
-                    <div class="feature-meta">01 · zero-alloc inference</div>
-                    <h3>Run trained models with no GC pressure.</h3>
-                    <p>Pre-allocated buffers, span-based math, no per-call allocations on the hot path. Predictable tail latency under concurrent load.</p>
-                    <pre><code><span class="kw">using var</span> engine = <span class="typ">InferenceEngine</span>.FromSequential(model, <span class="num">784</span>, <span class="num">10</span>);
-
-<span class="typ">Span</span>&lt;<span class="kw">float</span>&gt; input  = <span class="kw">stackalloc</span> <span class="kw">float</span>[<span class="num">784</span>];
-<span class="typ">Span</span>&lt;<span class="kw">float</span>&gt; output = <span class="kw">stackalloc</span> <span class="kw">float</span>[<span class="num">10</span>];
-engine.Run(input, output);  <span class="com">// zero-allocation</span></code></pre>
-                </div>
-
-                <div class="feature">
-                    <div class="feature-meta">02 · run + fine-tune llms</div>
-                    <h3>GPT-2 / Llama / Qwen / Mistral — inference and LoRA fine-tuning.</h3>
-                    <p>Load weights from HuggingFace or directly from GGUF files (F32, F16, BF16, Q8_0, Q4_K, Q6_K) — memory-mapped, so a 3B Q4_K_M model loads with a ~220 MB managed heap. KV-cache decode at 0 bytes per token. Top-10 logit overlap 10/10 vs PyTorch reference (maxAbsDiff = 0.000107). LoRA fine-tuning adapts a base model to your own data — training and inference, both in pure C#.</p>
-                    <pre><code><span class="kw">using var</span> gpt2    = <span class="typ">Gpt2</span>.LoadSmall(<span class="str">"./models/gpt2"</span>);
-<span class="kw">using var</span> session = gpt2.CreateSession();
-
-session.Reset(gpt2.Tokenizer.Encode(<span class="str">"Hello, world."</span>));
-
-<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">32</span>; i++)
-{
-                    <span class="kw">var</span> token = session.GenerateNextToken(<span class="kw">in</span> sampling);
-                    <span class="typ">Console</span>.Write(gpt2.Tokenizer.DecodeToken(token));
-}</code></pre>
-                </div>
-
-                <div class="feature">
-                    <div class="feature-meta">03 · onnx import</div>
-                    <h3>Bring PyTorch-trained models, run them natively.</h3>
-                    <p>Direct ONNX import. 14 operators supported (Conv, Gemm, ReLU, Tanh, BatchNorm, MaxPool, Add for skip connections, etc.). Branching DAG topology works (ResNet, DenseNet, EfficientNet).</p>
-                    <pre><code><span class="kw">var</span> model = <span class="typ">OnnxImporter</span>.Load(<span class="str">"classifier.onnx"</span>);
-model.Eval();
-
-<span class="kw">using var</span> engine = <span class="typ">InferenceEngine</span>.FromSequential(model, <span class="num">784</span>, <span class="num">10</span>);
-<span class="kw">var</span> prediction = engine.Predict(input);  <span class="com">// zero-alloc</span></code></pre>
-                </div>
-
-                <div class="feature">
-                    <div class="feature-meta">04 · in-process agents</div>
-                    <h3>RAG, tool calling and guaranteed JSON — no server, no Python.</h3>
-                    <p>Embeddings plus a built-in vector store give in-process RAG (no external vector database). Constrained decoding makes structured output <em>valid by construction</em>: well-formed JSON and tool calls the model physically cannot malform — then dispatched to your C# delegate. No prompt-and-pray, no retry/repair.</p>
-                    <pre><code><span class="kw">var</span> tools = <span class="kw">new</span>[] { <span class="kw">new</span> <span class="typ">ToolDefinition</span>(<span class="str">"get_weather"</span>, <span class="str">"Weather for a city."</span>) };
-
-<span class="kw">var</span> reply = chat.Send(<span class="str">"Weather in Paris?"</span>, <span class="kw">in</span> options,
-                    <span class="kw">new</span> <span class="typ">ToolCallConstraint</span>(tools, tokenizer));
-
-<span class="kw">if</span> (<span class="typ">ToolCall</span>.TryParse(reply, <span class="kw">out var</span> call))   <span class="com">// always a valid call</span>
-    result = handlers[call.Name](call.Arguments);  <span class="com">// → your C# function</span></code></pre>
-                </div>
+                <div class="card"><div class="icon">🇵🇱</div><h3>What it proves</h3><ul><li>Bielik loads from a local GGUF file inside .NET.</li><li>Polish documents are indexed and queried through in-process RAG.</li><li>Polish requests become C# tool calls.</li><li>Business decisions return as well-formed JSON objects.</li><li>No model server, Python process or API key.</li></ul><p style="margin-top:16px"><a class="btn secondary" href="/bielik-dotnet-agent.html">Open Bielik page</a></p></div>
             </div>
         </div>
     </section>
 
-    <!-- ============================================================
-         WHY NOT X
-         ============================================================ -->
-    <section>
+    <section class="section" id="demo">
         <div class="container">
-            <h2>Why not just use…?</h2>
-            <p>Overfit isn't trying to be everything. Here is the honest map of where it fits — and where it does not.</p>
-            <div class="bench">
+            <span class="kicker">ASP.NET demo</span><h2>One service. Six useful endpoints.</h2>
+            <p class="section-intro">The Local Agent demo exposes chat, RAG, tool calling, guaranteed JSON and metrics over HTTP.</p>
+            <div class="endpoint-grid"><div class="endpoint">GET /health</div><div class="endpoint">POST /chat</div><div class="endpoint">POST /rag/query</div><div class="endpoint">POST /agent</div><div class="endpoint">POST /chat/json</div><div class="endpoint">GET /metrics</div></div>
+        </div>
+    </section>
+
+    <section class="section" id="features">
+        <div class="container">
+            <span class="kicker">Core capabilities</span><h2>Everything needed for private .NET agents.</h2>
+            <p class="section-intro">Overfit is not a wrapper around a server. The runtime, retrieval, constrained JSON, tool dispatch and inference hot paths live in managed .NET.</p>
+            <div class="grid-4">
+                <div class="card"><div class="icon">🤖</div><h3>Local LLMs</h3><p>Bielik, Qwen, Llama, Mistral, Mixtral and GPT-style models from GGUF, safetensors, ONNX or checkpoints.</p></div>
+                <div class="card"><div class="icon">🔎</div><h3>In-process RAG</h3><p>Embeddings, built-in vector store and cosine search without an external vector DB.</p></div>
+                <div class="card"><div class="icon">🛠️</div><h3>C# tool calling</h3><p>Constrained decoding forces a valid tool-call envelope and dispatches straight to your C# delegate.</p></div>
+                <div class="card"><div class="icon">{}</div><h3>Guaranteed JSON</h3><p>Structured output is valid by construction. Invalid tokens cannot be sampled under the active constraint.</p></div>
+                <div class="card"><div class="icon">🧩</div><h3>Pure-managed engine</h3><p>Predictable CPU inference, explicit memory ownership, Native AOT-compatible paths and zero-allocation hot paths.</p></div>
+                <div class="card"><div class="icon">📦</div><h3>Flexible model I/O</h3><p>GGUF, K-quants, safetensors, ONNX, GPT-2 .bin, embeddings, LoRA, OCR and small deep networks.</p></div>
+                <div class="card"><div class="icon">🎯</div><h3>Fine-tuning</h3><p>LoRA stages, autograd training, Adam/SGD, LR schedules, CNNs and gradient checkpointing.</p></div>
+                <div class="card"><div class="icon">🔁</div><h3>ONNX import</h3><p>Linear topology plus DAG support, skip connections, ResNet-style models and output parity checks vs PyTorch.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="benchmarks">
+        <div class="container">
+            <span class="kicker">Benchmarks</span><h2>Honest performance story.</h2>
+            <p class="section-intro">Overfit optimizes for pure-managed, in-process .NET deployment, low allocation pressure and predictable CPU behavior. It is not trying to beat llama.cpp or native GPU stacks on every raw throughput metric.</p>
+            <div class="table">
                 <table>
-                    <thead>
-                        <tr><th>Tool</th><th>The right choice when…</th><th>Reach for Overfit when…</th></tr>
-                    </thead>
+                    <thead><tr><th>Workload</th><th>Headline result</th><th>Allocation</th></tr></thead>
                     <tbody>
-                        <tr><td><strong>ML.NET</strong></td><td>Classical ML on tabular data — regression, classification, forecasting.</td><td>You need transformer / LLM inference or deep networks, not classical tabular models.</td></tr>
-                        <tr><td><strong>ONNX Runtime</strong></td><td>You already have ONNX models and accept a native dependency.</td><td>You want pure-managed, zero-allocation inference — no native binary, no GC pauses at the tail. Overfit imports ONNX models too.</td></tr>
-                        <tr><td><strong>llama.cpp / Ollama</strong></td><td>A standalone, language-agnostic CPU LLM server run as a separate process.</td><td>You want the model running inside your .NET process — no sidecar, no IPC, no exposed server to secure.</td></tr>
-                        <tr><td><strong>LLamaSharp</strong></td><td>The mature, GPU-capable default for running LLMs in .NET — bundling a native llama.cpp binary is fine for your deployment.</td><td>You can't ship a native binary: Native-AOT-strict builds, locked-down or regulated environments where an opaque native dependency is an audit problem, or zero-allocation hot paths.</td></tr>
-                        <tr><td><strong>PyTorch</strong></td><td>Training and research; large models; GPU.</td><td>Deploying inference into a .NET production app without the Python stack.</td></tr>
-                        <tr><td><strong>OpenAI / Anthropic APIs</strong></td><td>Best model quality, zero infrastructure, and data egress is acceptable.</td><td>Data egress is not acceptable — regulated data, on-prem, no third-party calls.</td></tr>
+                        <tr><td><strong>Single inference Linear(784→10)</strong></td><td>~7.6× faster than ONNX Runtime</td><td>0 B</td></tr>
+                        <tr><td><strong>Qwen2.5‑3B Q4_K_M decode</strong></td><td>~19 tok/s on CPU; RAM footprint in llama.cpp range</td><td>~1 B/token</td></tr>
+                        <tr><td><strong>Bielik-4.5B Q4_K_M preset</strong></td><td>Observed ~11 tok/s in current CPU demo context</td><td>decode hot path target: 0 B/token</td></tr>
+                        <tr><td><strong>GPT-2 KV-cache decode</strong></td><td>~6.5× faster than naive O(N²)</td><td>0 B/token</td></tr>
                     </tbody>
                 </table>
-            </div>
+            </div><p class="muted">Raw tokens/sec is not the main axis. llama.cpp / LLamaSharp can be faster. Overfit optimizes for pure C#, in-process deployment, Native AOT-friendly paths, low allocation pressure and no data egress.</p>
         </div>
     </section>
 
-    <!-- ============================================================
-         BENCHMARKS
-         ============================================================ -->
-    <section id="benchmarks">
+    <section class="section" id="commercial">
         <div class="container">
-            <h2>Benchmarks</h2>
-            <p>AMD Ryzen 9 9950X3D · Windows 11 · .NET 10 · BenchmarkDotNet 0.15.8. Reproducible from the repo.</p>
-
-            <h3 style="margin-top: 32px; font-size: 14px; color: var(--fg-dim);">Single inference — Linear(784→10)</h3>
-            <div class="bench">
-                <table>
-                    <thead>
-                        <tr><th>Engine</th><th>Mean</th><th>Allocated</th><th>vs ONNX</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>Overfit</strong></td><td class="win">250.7 ns</td><td class="win">0 B</td><td class="win">7.6× faster</td></tr>
-                        <tr><td>ONNX Runtime (pre-allocated)</td><td class="baseline">1,899 ns</td><td class="baseline">224 B</td><td class="baseline">baseline</td></tr>
-                        <tr><td>ONNX Runtime (standard)</td><td class="baseline">3,388 ns</td><td class="baseline">952 B</td><td class="baseline">0.56×</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h3 style="margin-top: 32px; font-size: 14px; color: var(--fg-dim);">GPT-2 Small (124M params) — KV-cache decode, 64 tokens</h3>
-            <div class="bench">
-                <table>
-                    <thead>
-                        <tr><th>Path</th><th>Mean</th><th>Allocated</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Legacy (full forward per token)</td><td class="baseline">6,318 ms</td><td class="baseline">62.0 MB · grows</td></tr>
-                        <tr><td><strong>KV-cache</strong></td><td class="win">973 ms</td><td class="win">0 B / token *</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="bench-note">* One-time session creation cost (~74 MB constant). Per-token allocation verified zero by a CI assertion that fails the build if anything allocates during decode.</div>
-
-            <h3 style="margin-top: 32px; font-size: 14px; color: var(--fg-dim);">Concurrent inference — 8 threads × 1,000 calls</h3>
-            <div class="bench">
-                <table>
-                    <thead>
-                        <tr><th>Engine</th><th>Mean</th><th>Allocated</th><th>vs ONNX</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>Overfit</strong></td><td class="win">522 ms</td><td class="win">0 B</td><td class="win">3.6× faster</td></tr>
-                        <tr><td>ONNX Runtime</td><td class="baseline">1,894 ms</td><td class="baseline">117 MB</td><td class="baseline">baseline</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <p style="margin-top: 28px; font-size: 14px;">→ <a href="zero-allocation-llm-inference-csharp.html">How Overfit achieves zero-allocation LLM inference in pure C#</a> — the full engineering build log.</p>
+            <span class="kicker">Commercial integration</span><h2>Get a private .NET agent into production.</h2>
+            <div class="grid-3"><div class="package"><h3>Private .NET RAG / Agent PoC</h3><p>Local model, document indexing, RAG, C# tools, guaranteed JSON and ASP.NET endpoints in your infrastructure.</p></div><div class="package"><h3>Bielik for Polish documents</h3><p>Polish local agent over policies, support docs, contracts, claims and internal knowledge bases.</p></div><div class="package"><h3>Sidecar replacement</h3><p>Move inference from Python, Ollama, ONNX Runtime or a model server into your .NET process.</p></div></div>
         </div>
     </section>
 
-    <!-- ============================================================
-         USE CASES
-         ============================================================ -->
-    <section>
-        <div class="container">
-            <h2>Built for</h2>
-
-            <div class="use-cases">
-                <div class="use-case" style="grid-column: 1 / -1;">
-                    <span class="use-case-tag">regulated</span>
-                    <h3>Regulated industries — healthcare, finance, government</h3>
-                    <p>Inference runs inside your process — no third-party API calls, no data egress, no API keys. Data never leaves your boundary by construction, so compliance verifies it once, structurally, instead of auditing every request. Deterministic outputs and file-versioned models give a reproducible audit trail. GDPR / HIPAA / data-residency stop being the blocker — and the EU AI Act reaches full enforcement in August 2026.</p>
-                </div>
-                <div class="use-case">
-                    <span class="use-case-tag">infra</span>
-                    <h3>Kubernetes anomaly detection</h3>
-                    <p>Self-hosted pod-level anomaly detection on AKS / EKS. Replace Datadog or Dynatrace anomaly modules without sending metrics out of cluster. Sub-minute detection latency, no SaaS bill.</p>
-                </div>
-                <div class="use-case">
-                    <span class="use-case-tag">.net enterprise</span>
-                    <h3>Embedded ML in production services</h3>
-                    <p>Add ML inference to existing .NET services without shipping a Python sidecar. One process, one runtime, one deploy pipeline, one security audit.</p>
-                </div>
-                <div class="use-case">
-                    <span class="use-case-tag">low-latency</span>
-                    <h3>High-frequency / ad-tech inference</h3>
-                    <p>Sub-microsecond P99.9 (0.80 µs vs 5.70 µs for ONNX). Zero GC pauses under sustained concurrent load. Deterministic tail latency matters more than peak throughput.</p>
-                </div>
-                <div class="use-case">
-                    <span class="use-case-tag">embedded</span>
-                    <h3>Edge & on-device deployment</h3>
-                    <p>Native AOT single-binary deployment. No CUDA libraries to ship, no Python runtime to install. Industrial automation, gaming anti-cheat, IoT.</p>
-                </div>
-            </div>
+    <section class="section" id="contact">
+        <div class="container hero-grid">
+            <div><span class="kicker">Contact</span><h2>Tell me what you need to ship.</h2><p class="section-intro">Best first message: current stack, target deployment, model size, data constraints, whether Python/native binaries are allowed, and what the first demo must prove.</p><p class="muted">Direct email: <a href="mailto:devonbike@gmail.com">devonbike@gmail.com</a></p></div>
+            <form class="hero-card form" onsubmit="sendMail(event)"><input id="email" type="email" placeholder="Your email" required /><input id="company" placeholder="Company / project" /><select id="usecase"><option>Bielik / Polish local agent</option><option>Private .NET RAG / Agent PoC</option><option>Python / Ollama / ONNX sidecar replacement</option><option>Zero-GC inference audit</option><option>Commercial license</option></select><textarea id="message" placeholder="What are you trying to solve?"></textarea><button class="btn primary" type="submit">Open email draft</button><p class="muted" style="font-size:13px;margin:0">Static form: opens your email client. No backend, no stored form data.</p></form>
         </div>
     </section>
 
-    <!-- ============================================================
-         WHAT IT IS NOT
-         ============================================================ -->
-    <section>
-        <div class="container">
-            <h2>What it is NOT</h2>
-            <p>Where this is the wrong tool. Read this before deciding.</p>
-
-            <ul class="not-list">
-                <li>Not a PyTorch / TensorFlow replacement for research workloads.</li>
-                <li>Not GPU-first. Pure CPU. If your workload needs GPU, use PyTorch.</li>
-                <li>Not for training large transformers from scratch. PyTorch CPU is still 2.2–3.6× faster on training (their GEMM is Intel MKL — decades of AVX-512 assembly that pure-C# does not out-run).</li>
-                <li>Not a hosted SaaS. Self-hosted, deployed inside your infrastructure.</li>
-                <li>Not magic. The wins are predictable allocation behaviour and zero P/Invoke overhead — not raw matmul throughput.</li>
-            </ul>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         PRICING
-         ============================================================ -->
-    <section id="pricing">
-        <div class="container">
-            <h2>Pricing</h2>
-            <p>Dual-licensed: free under AGPLv3 for open-source projects and research. Commercial licenses for closed-source production use:</p>
-
-            <div class="pricing">
-                <div class="tier">
-                    <div class="tier-name">Self-Service</div>
-                    <div class="tier-price">$4,800</div>
-                    <div class="tier-period">/ year</div>
-                    <ul class="tier-features">
-                        <li>Commercial license, perpetual for the licensed version</li>
-                        <li>NuGet package + private GitHub support</li>
-                        <li>Email response within 5 business days</li>
-                        <li>Self-managed deployment</li>
-                        <li>Minor version updates included</li>
-                    </ul>
-                    <a href="#contact" class="btn">Request a license</a>
-                </div>
-
-                <div class="tier featured">
-                    <div class="tier-name">Production</div>
-                    <div class="tier-price">$18,000</div>
-                    <div class="tier-period">/ year</div>
-                    <ul class="tier-features">
-                        <li>Everything in Self-Service</li>
-                        <li>Hands-on deployment to your AKS / EKS / on-prem cluster</li>
-                        <li>Custom model training on your data (1 model)</li>
-                        <li>Quarterly model performance reviews</li>
-                        <li>48-hour SLA for production issues</li>
-                    </ul>
-                    <a href="#contact" class="btn btn-primary">Book a demo</a>
-                </div>
-
-                <div class="tier">
-                    <div class="tier-name">Enterprise</div>
-                    <div class="tier-price">$48,000</div>
-                    <div class="tier-period">/ year</div>
-                    <ul class="tier-features">
-                        <li>Everything in Production</li>
-                        <li>24h SLA + on-call support</li>
-                        <li>Dedicated retraining pipeline</li>
-                        <li>Custom feature development</li>
-                        <li>Architecture review and roadmap input</li>
-                    </ul>
-                    <a href="#contact" class="btn">Talk to us</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         CONTACT
-         ============================================================ -->
-    <section id="contact">
-        <div class="container">
-            <h2>Get in touch</h2>
-            <p>Tell us about your workload. We respond within one business day. If we are not a fit, we will say so.</p>
-
-            <form id="contact-form" onsubmit="submitForm(event)">
-                <div class="form-row">
-                    <div>
-                        <label for="email">Email <span class="req">*</span></label>
-                        <input type="email" id="email" name="email" required placeholder="you@company.com">
-                    </div>
-                    <div>
-                        <label for="company">Company</label>
-                        <input type="text" id="company" name="company" placeholder="Acme Inc.">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div>
-                        <label for="role">Your role</label>
-                        <input type="text" id="role" name="role" placeholder="Head of Platform / SRE / CTO">
-                    </div>
-                    <div>
-                        <label for="usecase">Primary use case</label>
-                        <select id="usecase" name="usecase">
-                            <option value="">— select one —</option>
-                            <option value="regulated">Regulated industry (healthcare / finance / gov)</option>
-                            <option value="k8s-monitoring">Kubernetes anomaly detection</option>
-                            <option value="dotnet-embedded">Embedded ML in .NET service</option>
-                            <option value="low-latency">Low-latency inference (HFT / ad-tech)</option>
-                            <option value="edge-iot">Edge / IoT / on-device</option>
-                            <option value="consulting">Consulting / custom build</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label for="message">What are you trying to solve?</label>
-                    <textarea id="message" name="message" placeholder="Briefly: scale, current stack, blocker. The more specific, the better we can respond."></textarea>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 8px;">
-                    <div class="form-hint">Or email directly: <a href="mailto:devonbike@gmail.com">devonbike@gmail.com</a></div>
-                    <button type="submit" class="btn btn-primary">Send inquiry<span class="btn-arrow">→</span></button>
-                </div>
-            </form>
-
-            <div id="form-success" class="form-success">
-                <strong>Your email client should have opened.</strong> If not, please write directly to <a href="mailto:devonbike@gmail.com">devonbike@gmail.com</a>. We will respond within one business day.
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         FOOTER
-         ============================================================ -->
-    <footer>
-        <div class="container">
-            <div>© 2026 Overfit · <a href="mailto:devonbike@gmail.com">devonbike@gmail.com</a></div>
-            <div class="footer-links">
-                <a href="zero-allocation-llm-inference-csharp.html">Blog</a>
-                <a href="https://github.com/DevOnBike/Overfit">GitHub</a>
-                <a href="https://www.nuget.org/packages/DevOnBike.Overfit">NuGet</a>
-                <a href="https://github.com/DevOnBike/Overfit/blob/main/LICENSE">License</a>
-                <a href="https://github.com/DevOnBike/Overfit/blob/main/COMMERCIAL.md">Commercial</a>
-            </div>
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div><strong>Overfit</strong><br />Pure C#/.NET local AI runtime for private LLMs, RAG, C# tool calling and guaranteed JSON.</div>
+            <div><a href="https://github.com/DevOnBike/Overfit">GitHub</a> · <a href="https://www.nuget.org/packages/DevOnBike.Overfit">NuGet</a> · <a href="https://github.com/DevOnBike/Overfit/tree/bielik/Demo/LocalAgentAspNetDemo">Bielik demo</a> · <a href="https://github.com/DevOnBike/Overfit/blob/bielik/COMMERCIAL.md">Commercial</a> · <a href="/privacy.html">Privacy</a><br /><span>devonbike@gmail.com</span></div>
         </div>
     </footer>
 
-    <script>
-        // ============================================================
-        // Form handler — defaults to mailto: (no backend required).
-        // Replace with Formspree / Netlify Forms / your worker
-        // when you want collected leads in a real inbox/DB.
-        // ============================================================
-        function submitForm(e) {
-            e.preventDefault();
-            const form = e.target;
-            const data = new FormData(form);
-
-            // Build mailto body
-            const lines = [];
-            const fields = ['email', 'company', 'role', 'usecase', 'message'];
-            for (const f of fields) {
-                const v = data.get(f);
-                if (v) {
-                    const label = f.charAt(0).toUpperCase() + f.slice(1);
-                    lines.push(`${label}: ${v}`);
-                }
-            }
-            const subject = encodeURIComponent(
-                `[Overfit] Inquiry from ${data.get('company') || data.get('email')}`
-            );
-            const body = encodeURIComponent(lines.join('\n\n'));
-
-            window.location.href = `mailto:devonbike@gmail.com?subject=${subject}&body=${body}`;
-
-            // Show confirmation after a short delay (client will have opened)
-            setTimeout(() => {
-                form.classList.add('submitted');
-                document.getElementById('form-success').classList.add('show');
-            }, 600);
-        }
-    </script>
+    <script>function sendMail(e) { e.preventDefault(); const email = document.getElementById('email').value; const company = document.getElementById('company').value; const usecase = document.getElementById('usecase').value; const message = document.getElementById('message').value; const body = encodeURIComponent(`Email: ${email}\nCompany: ${company}\nUse case: ${usecase}\n\n${message}`); window.location.href = `mailto:devonbike@gmail.com?subject=Overfit inquiry: ${encodeURIComponent(usecase)}&body=${body}`; }</script>
 </body>
 </html>

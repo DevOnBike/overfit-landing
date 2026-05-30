@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Zero-allocation LLM inference in pure C# — Overfit</title>
-    <meta name="description" content="A technical build log for Overfit: local LLM decode inside .NET with zero-allocation hot paths, Native AOT goals, Bielik preset and no Python sidecar." />
-    <link rel="canonical" href="https://overfit-ml.com/zero-allocation-llm-inference-csharp.html" />
+    <title>Private .NET AI integration — Overfit</title>
+    <meta name="description" content="Add private LLMs, Bielik, RAG, C# tool calling and guaranteed JSON to your .NET product without Python, Ollama, model servers or data egress." />
+    <link rel="canonical" href="https://overfit-ml.com/enterprise-dotnet-ai-integration.html" />
     <style>
         :root {
             --bg: #050b11;
@@ -476,14 +476,9 @@
         </div>
     </nav>
 
-    <main class="section">
-        <article class="container" style="max-width:900px">
-            <a href="/">← overfit-ml.com</a><h1>Zero-allocation LLM inference in pure C#.</h1><p class="lead">Overfit is the attempt to make local AI feel like a normal .NET library: a model file, a NuGet package, explicit memory ownership and no Python process.</p><h2>What changed recently</h2><p class="muted">The branch now includes a Bielik preset for the ASP.NET local-agent demo: local Bielik GGUF, Polish documents, Polish RAG, C# tool calling, business-decision JSON and metrics.</p><pre class="terminal"><code>cd Demo/LocalAgentAspNetDemo
-.\download-bielik.cmd
-.\download-embedder.cmd
-.\run-bielik.cmd</code></pre><h2>The current result</h2><div class="table"><table><thead><tr><th>Metric</th><th>Headline</th></tr></thead><tbody><tr><td>Decode hot path</td><td>0 B/token target in the benchmark path</td></tr><tr><td>Qwen2.5-3B Q4_K_M</td><td>~19 tok/s on CPU in the current benchmark context</td></tr><tr><td>Bielik-4.5B Q4_K_M</td><td>Observed ~11 tok/s in the current CPU demo context</td></tr><tr><td>Managed heap</td><td>~220 MB live heap for mmap-backed 3B model load path</td></tr></tbody></table></div><p class="muted">This is not a claim that Overfit beats llama.cpp on raw throughput. The point is deployment shape: local AI inside .NET, with RAG, C# tools and structured output, without a separate runtime.</p>
-        </article>
-    </main>
+    <header class="hero"><div class="container"><span class="eyebrow">Enterprise .NET AI integration</span><h1>Add private AI to your .NET product <span class="grad">without a sidecar</span>.</h1><p class="lead">Overfit is built for teams that already ship .NET and need local AI in regulated, on-prem, locked-down or air-gapped environments — including Polish Bielik-based agents.</p><div class="ctas"><a class="btn primary" href="mailto:devonbike@gmail.com?subject=Overfit%20integration%20review">Book integration review</a><a class="btn secondary" href="/bielik-dotnet-agent.html">See Bielik demo</a></div></div></header>
+    <section class="section"><div class="container"><span class="kicker">Packages</span><h2>Concrete integration outcomes.</h2><div class="grid-3"><div class="package"><h3>Private .NET RAG / Agent PoC</h3><p>Local model, RAG, C# tools, JSON and ASP.NET endpoints in your infrastructure.</p></div><div class="package"><h3>Bielik Polish Agent</h3><p>Bielik over Polish documents, procedures, claims, policies and support docs with tool calling and JSON.</p></div><div class="package"><h3>Sidecar replacement</h3><p>Replace Python, Ollama, ONNX Runtime or model-server deployment with an in-process .NET path.</p></div></div></div></section>
+    <section class="section" id="contact"><div class="container"><span class="kicker">Next step</span><h2>Send a short technical brief.</h2><p class="section-intro">Include current stack, target deployment, model/data constraints, latency target, whether native binaries are allowed and what a 2-week proof must show.</p><a class="btn primary" href="mailto:devonbike@gmail.com?subject=Overfit%20integration%20review">Email devonbike@gmail.com</a></div></section>
     <footer class="footer">
         <div class="container footer-inner">
             <div><strong>Overfit</strong><br />Pure C#/.NET local AI runtime for private LLMs, RAG, C# tool calling and guaranteed JSON.</div>
