@@ -3,14 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Overfit — Private LLMs, Bielik, RAG & Agents inside pure C#/.NET</title>
-    <meta name="description" content="Overfit embeds private LLMs, Bielik, RAG, C# tool calling and guaranteed JSON directly inside your .NET app. No Python, no Ollama, no model server, no data egress." />
-    <link rel="canonical" href="https://overfit-ml.com/" />
-    <meta property="og:title" content="Overfit — Private LLMs inside pure C#/.NET" />
-    <meta property="og:description" content="Run Bielik and other local LLMs, RAG, C# tool calling and guaranteed JSON directly inside ASP.NET/.NET — no Python, no Ollama, no model server." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://overfit-ml.com/" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <title>Privacy — Overfit</title>
+    <meta name="description" content="Privacy information for overfit-ml.com." />
     <style>
         :root {
             --bg: #050b11;
@@ -480,123 +474,12 @@
             </div>
         </div>
     </nav>
-
-    <header class="hero">
-        <div class="container hero-grid">
-            <div>
-                <span class="eyebrow">Bielik · pure C# · private AI · no sidecar</span>
-                <h1>Run private LLMs inside <span class="grad">your .NET app</span>.</h1>
-                <p class="lead">Overfit runs Bielik, Qwen, Llama and Mistral-style local LLMs, RAG, C# tool calling and guaranteed JSON directly inside your process — no Python, no Ollama, no model server, no native binary, no data egress.</p>
-                <div class="ctas"><a class="btn primary" href="https://github.com/DevOnBike/Overfit/tree/bielik/Demo/LocalAgentAspNetDemo">Run Bielik demo</a><a class="btn secondary" href="https://github.com/DevOnBike/Overfit">View on GitHub</a><a class="btn" href="#contact">Book integration review</a></div>
-                <div class="terminal"><span class="prompt">$</span> dotnet add package DevOnBike.Overfit</div>
-                <div class="no-strip"><span>No Python</span><span>No Ollama</span><span>No model server</span><span>No native binary</span><span>No data egress</span><span>No CUDA</span><span>No vendor lock-in</span></div>
-            </div><div class="hero-card highlight">
-                <div class="kicker">New demo</div><h2 style="font-size:35px">Bielik inside ASP.NET.</h2>
-                <p class="muted">A Polish local-agent preset loads Bielik from GGUF, indexes Polish documents, answers with RAG, calls C# tools and returns well-formed JSON — all in one ASP.NET process.</p>
-                <div class="terminal" style="margin-top:18px">
-                    <span class="prompt">$</span> cd Demo/LocalAgentAspNetDemo
-                    <span class="prompt">$</span> .\download-bielik.cmd
-                    <span class="prompt">$</span> .\download-embedder.cmd
-                    <span class="prompt">$</span> .\run-bielik.cmd
-                </div>
-            </div>
-        </div>
-        <div class="container stats">
-            <div class="stat"><strong>0 B</strong><span>allocated per token on the decode hot path</span></div>
-            <div class="stat"><strong>7.6×</strong><span>faster than ONNX Runtime on single Linear inference</span></div>
-            <div class="stat"><strong>~19 tok/s</strong><span>Qwen2.5‑3B Q4_K_M on CPU</span></div>
-            <div class="stat"><strong>~220 MB</strong><span>live managed heap for mmap-backed 3B load path</span></div>
-            <div class="stat"><strong>100%</strong><span>pure C# / .NET 10 runtime path</span></div>
-            <div class="stat"><strong>1e‑4</strong><span>ONNX output parity vs PyTorch</span></div>
-        </div>
-    </header>
-
-    <section class="section" id="bielik">
-        <div class="container">
-            <span class="kicker">Bielik local agent</span><h2>Polish RAG, tools and JSON — without Python.</h2>
-            <p class="section-intro">The Bielik preset is the most practical Polish demo: local Bielik GGUF, Polish documents, RAG, C# tool calling, business-decision JSON and metrics from one ASP.NET service.</p>
-            <div class="grid-2">
-                <div class="code-card">
-                    <pre><code>cd Demo/LocalAgentAspNetDemo
-.\download-bielik.cmd      # Bielik GGUF -> C:\bielik
-.\download-embedder.cmd    # MiniLM embedder -> C:\minilm
-.\run-bielik.cmd           # launch-profile bielik
-
-# Try:
-POST /rag/query
-POST /agent
-POST /decision/refund
-GET  /metrics</code></pre>
-                </div>
-                <div class="card"><div class="icon">🇵🇱</div><h3>What it proves</h3><ul><li>Bielik loads from a local GGUF file inside .NET.</li><li>Polish documents are indexed and queried through in-process RAG.</li><li>Polish requests become C# tool calls.</li><li>Business decisions return as well-formed JSON objects.</li><li>No model server, Python process or API key.</li></ul><p style="margin-top:16px"><a class="btn secondary" href="/bielik-dotnet-agent.html">Open Bielik page</a></p></div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section" id="demo">
-        <div class="container">
-            <span class="kicker">ASP.NET demo</span><h2>One service. Six useful endpoints.</h2>
-            <p class="section-intro">The Local Agent demo exposes chat, RAG, tool calling, guaranteed JSON and metrics over HTTP.</p>
-            <div class="endpoint-grid"><div class="endpoint">GET /health</div><div class="endpoint">POST /chat</div><div class="endpoint">POST /rag/query</div><div class="endpoint">POST /agent</div><div class="endpoint">POST /chat/json</div><div class="endpoint">GET /metrics</div></div>
-        </div>
-    </section>
-
-    <section class="section" id="features">
-        <div class="container">
-            <span class="kicker">Core capabilities</span><h2>Everything needed for private .NET agents.</h2>
-            <p class="section-intro">Overfit is not a wrapper around a server. The runtime, retrieval, constrained JSON, tool dispatch and inference hot paths live in managed .NET.</p>
-            <div class="grid-4">
-                <div class="card"><div class="icon">🤖</div><h3>Local LLMs</h3><p>Bielik, Qwen, Llama, Mistral, Mixtral and GPT-style models from GGUF, safetensors, ONNX or checkpoints.</p></div>
-                <div class="card"><div class="icon">🔎</div><h3>In-process RAG</h3><p>Embeddings, built-in vector store and cosine search without an external vector DB.</p></div>
-                <div class="card"><div class="icon">🛠️</div><h3>C# tool calling</h3><p>Constrained decoding forces a valid tool-call envelope and dispatches straight to your C# delegate.</p></div>
-                <div class="card"><div class="icon">{}</div><h3>Guaranteed JSON</h3><p>Structured output is valid by construction. Invalid tokens cannot be sampled under the active constraint.</p></div>
-                <div class="card"><div class="icon">🧩</div><h3>Pure-managed engine</h3><p>Predictable CPU inference, explicit memory ownership, Native AOT-compatible paths and zero-allocation hot paths.</p></div>
-                <div class="card"><div class="icon">📦</div><h3>Flexible model I/O</h3><p>GGUF, K-quants, safetensors, ONNX, GPT-2 .bin, embeddings, LoRA, OCR and small deep networks.</p></div>
-                <div class="card"><div class="icon">🎯</div><h3>Fine-tuning</h3><p>LoRA stages, autograd training, Adam/SGD, LR schedules, CNNs and gradient checkpointing.</p></div>
-                <div class="card"><div class="icon">🔁</div><h3>ONNX import</h3><p>Linear topology plus DAG support, skip connections, ResNet-style models and output parity checks vs PyTorch.</p></div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section" id="benchmarks">
-        <div class="container">
-            <span class="kicker">Benchmarks</span><h2>Honest performance story.</h2>
-            <p class="section-intro">Overfit optimizes for pure-managed, in-process .NET deployment, low allocation pressure and predictable CPU behavior. It is not trying to beat llama.cpp or native GPU stacks on every raw throughput metric.</p>
-            <div class="table">
-                <table>
-                    <thead><tr><th>Workload</th><th>Headline result</th><th>Allocation</th></tr></thead>
-                    <tbody>
-                        <tr><td><strong>Single inference Linear(784→10)</strong></td><td>~7.6× faster than ONNX Runtime</td><td>0 B</td></tr>
-                        <tr><td><strong>Qwen2.5‑3B Q4_K_M decode</strong></td><td>~19 tok/s on CPU; RAM footprint in llama.cpp range</td><td>~1 B/token</td></tr>
-                        <tr><td><strong>Bielik-4.5B Q8_0 preset</strong></td><td>Observed ~8 tok/s in current CPU demo context</td><td>decode hot path target: 0 B/token</td></tr>
-                        <tr><td><strong>GPT-2 KV-cache decode</strong></td><td>~6.5× faster than naive O(N²)</td><td>0 B/token</td></tr>
-                    </tbody>
-                </table>
-            </div><p class="muted">Raw tokens/sec is not the main axis. llama.cpp / LLamaSharp can be faster. Overfit optimizes for pure C#, in-process deployment, Native AOT-friendly paths, low allocation pressure and no data egress.</p>
-        </div>
-    </section>
-
-    <section class="section" id="commercial">
-        <div class="container">
-            <span class="kicker">Commercial integration</span><h2>Get a private .NET agent into production.</h2>
-            <div class="grid-3"><div class="package"><h3>Private .NET RAG / Agent PoC</h3><p>Local model, document indexing, RAG, C# tools, guaranteed JSON and ASP.NET endpoints in your infrastructure.</p></div><div class="package"><h3>Bielik for Polish documents</h3><p>Polish local agent over policies, support docs, contracts, claims and internal knowledge bases.</p></div><div class="package"><h3>Sidecar replacement</h3><p>Move inference from Python, Ollama, ONNX Runtime or a model server into your .NET process.</p></div></div>
-        </div>
-    </section>
-
-    <section class="section" id="contact">
-        <div class="container hero-grid">
-            <div><span class="kicker">Contact</span><h2>Tell me what you need to ship.</h2><p class="section-intro">Best first message: current stack, target deployment, model size, data constraints, whether Python/native binaries are allowed, and what the first demo must prove.</p><p class="muted">Direct email: <a href="mailto:devonbike@gmail.com">devonbike@gmail.com</a></p></div>
-            <form class="hero-card form" onsubmit="sendMail(event)"><input id="email" type="email" placeholder="Your email" required /><input id="company" placeholder="Company / project" /><select id="usecase"><option>Bielik / Polish local agent</option><option>Private .NET RAG / Agent PoC</option><option>Python / Ollama / ONNX sidecar replacement</option><option>Zero-GC inference audit</option><option>Commercial license</option></select><textarea id="message" placeholder="What are you trying to solve?"></textarea><button class="btn primary" type="submit">Open email draft</button><p class="muted" style="font-size:13px;margin:0">Static form: opens your email client. No backend, no stored form data.</p></form>
-        </div>
-    </section>
-
+    <main class="section"><div class="container" style="max-width:850px"><h1>Privacy</h1><p class="lead">This site is intentionally simple.</p><div class="card"><p>The contact form opens your email client using a <code>mailto:</code> link. The site itself does not store form submissions, run a backend database or process payments.</p><p class="muted">If you email devonbike@gmail.com, your message is processed by the email providers involved in delivering that email. Do not include secrets, credentials, private keys or confidential model/data samples in the first message.</p><p class="muted">GitHub Pages and your browser/network provider may collect standard access logs according to their own infrastructure policies.</p></div></div></main>
     <footer class="footer">
         <div class="container footer-inner">
             <div><strong>Overfit</strong><br />Pure C#/.NET local AI runtime for private LLMs, RAG, C# tool calling and guaranteed JSON.</div>
             <div><a href="https://github.com/DevOnBike/Overfit">GitHub</a> · <a href="https://www.nuget.org/packages/DevOnBike.Overfit">NuGet</a> · <a href="https://github.com/DevOnBike/Overfit/tree/bielik/Demo/LocalAgentAspNetDemo">Bielik demo</a> · <a href="https://github.com/DevOnBike/Overfit/blob/bielik/COMMERCIAL.md">Commercial</a> · <a href="/privacy.html">Privacy</a><br /><span>devonbike@gmail.com</span></div>
         </div>
     </footer>
-
-    <script>function sendMail(e) { e.preventDefault(); const email = document.getElementById('email').value; const company = document.getElementById('company').value; const usecase = document.getElementById('usecase').value; const message = document.getElementById('message').value; const body = encodeURIComponent(`Email: ${email}\nCompany: ${company}\nUse case: ${usecase}\n\n${message}`); window.location.href = `mailto:devonbike@gmail.com?subject=Overfit inquiry: ${encodeURIComponent(usecase)}&body=${body}`; }</script>
 </body>
 </html>
