@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Overfit — Private LLMs, Bielik, RAG & Agents inside pure C#/.NET</title>
-    <meta name="description" content="Overfit embeds private LLMs, Bielik, RAG, C# tool calling and guaranteed JSON directly inside your .NET app. No Python, no Ollama, no model server, no data egress." />
+    <title>Overfit — Private LLMs, voice & an OpenAI server inside pure C#/.NET</title>
+    <meta name="description" content="Overfit runs private LLMs, RAG and agents — plus speech-to-text and text-to-speech — directly inside your .NET app, and serves an OpenAI-compatible API as a tiny Native-AOT binary or container. No Python, no Ollama, no model server, no data egress." />
     <link rel="canonical" href="https://overfit-ml.com/" />
-    <meta property="og:title" content="Overfit — Private LLMs inside pure C#/.NET" />
-    <meta property="og:description" content="Run Bielik and other local LLMs, RAG, C# tool calling and guaranteed JSON directly inside ASP.NET/.NET — no Python, no Ollama, no model server." />
+    <meta property="og:title" content="Overfit — Private LLMs & voice inside pure C#/.NET" />
+    <meta property="og:description" content="Local LLMs, RAG, agents, speech-to-text and voice-cloning TTS in pure C# — plus an OpenAI-compatible server compiled with Native AOT into a ~34 MB container. No Python, no model server." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://overfit-ml.com/" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -484,11 +484,13 @@
     <header class="hero">
         <div class="container hero-grid">
             <div>
-                <span class="eyebrow">Bielik · pure C# · private AI · no sidecar</span>
-                <h1>Run private LLMs inside <span class="grad">your .NET app</span>.</h1>
-                <p class="lead">Overfit runs Bielik, Qwen, Llama and Mistral-style local LLMs, RAG, C# tool calling and guaranteed JSON directly inside your process — no Python, no Ollama, no model server, no native binary, no data egress.</p>
-                <div class="ctas"><a class="btn primary" href="https://github.com/DevOnBike/Overfit/tree/bielik/Demo/LocalAgentAspNetDemo">Run Bielik demo</a><a class="btn secondary" href="https://github.com/DevOnBike/Overfit">View on GitHub</a><a class="btn" href="#contact">Book integration review</a></div>
-                <div class="terminal"><span class="prompt">$</span> dotnet add package DevOnBike.Overfit</div>
+                <span class="eyebrow">pure C# · private AI · voice · OpenAI-compatible · no sidecar</span>
+                <h1>Private LLMs and <span class="grad">voice</span>, inside your .NET app.</h1>
+                <p class="lead">Overfit runs local LLMs (Qwen, Llama, Phi, Gemma, Mistral, Bielik), RAG and agents — plus speech-to-text and text-to-speech — directly inside your process. It also serves an <strong>OpenAI-compatible API</strong> as a tiny Native-AOT binary or a ~34 MB container. No Python, no Ollama, no model server, no data egress.</p>
+                <div class="ctas"><a class="btn primary" href="https://github.com/DevOnBike/Overfit/tree/bielik/Demo/LocalAgentAspNetDemo">Run the demo</a><a class="btn secondary" href="https://github.com/DevOnBike/Overfit">View on GitHub</a><a class="btn" href="#contact">Book integration review</a></div>
+                <div class="terminal"><span class="prompt">$</span> dotnet add package DevOnBike.Overfit
+<span class="prompt">$</span> dotnet tool install -g DevOnBike.Overfit.Cli
+<span class="prompt">$</span> docker run -p 8080:8080 -v ./models:/models devonbikeit/overfit /models/model.gguf</div>
                 <div class="no-strip"><span>No Python</span><span>No Ollama</span><span>No model server</span><span>No native binary</span><span>No data egress</span><span>No CUDA</span><span>No vendor lock-in</span></div>
             </div><div class="hero-card highlight">
                 <div class="kicker">New demo</div><h2 style="font-size:35px">Bielik inside ASP.NET.</h2>
@@ -546,7 +548,9 @@ GET  /metrics</code></pre>
             <span class="kicker">Core capabilities</span><h2>Everything needed for private .NET agents.</h2>
             <p class="section-intro">Overfit is not a wrapper around a server. The runtime, retrieval, constrained JSON, tool dispatch and inference hot paths live in managed .NET.</p>
             <div class="grid-4">
-                <div class="card"><div class="icon">🤖</div><h3>Local LLMs</h3><p>Bielik, Qwen, Llama, Mistral, Mixtral and GPT-style models from GGUF, safetensors, ONNX or checkpoints.</p></div>
+                <div class="card"><div class="icon">🤖</div><h3>Local LLMs</h3><p>Qwen2.5/Qwen3, Llama, Mistral, Phi-3.5/4, Gemma 2, Mixtral &amp; MoE, Bielik and GPT-style models from GGUF, safetensors or ONNX — <strong>0 B/token</strong> decode.</p></div>
+                <div class="card"><div class="icon">🎙️</div><h3>Voice: speech ⇄ text</h3><p>Whisper speech-to-text <em>and</em> text-to-speech with voice cloning — the full voice loop in one .NET process, on the CPU.</p></div>
+                <div class="card"><div class="icon">🔌</div><h3>OpenAI-compatible server</h3><p><code>/v1/chat/completions</code> (SSE), <code>/v1/embeddings</code>, <code>/v1/audio/speech</code> — a dependency-free server, Native-AOT into a <strong>~34 MB</strong> container. Point any OpenAI client at it.</p></div>
                 <div class="card"><div class="icon">🔎</div><h3>In-process RAG</h3><p>Embeddings, built-in vector store and cosine search without an external vector DB.</p></div>
                 <div class="card"><div class="icon">🛠️</div><h3>C# tool calling</h3><p>Constrained decoding forces a valid tool-call envelope and dispatches straight to your C# delegate.</p></div>
                 <div class="card"><div class="icon">{}</div><h3>Guaranteed JSON</h3><p>Structured output is valid by construction. Invalid tokens cannot be sampled under the active constraint.</p></div>
@@ -592,7 +596,7 @@ GET  /metrics</code></pre>
 
     <footer class="footer">
         <div class="container footer-inner">
-            <div><strong>Overfit</strong><br />Pure C#/.NET local AI runtime for private LLMs, RAG, C# tool calling and guaranteed JSON.</div>
+            <div><strong>Overfit</strong><br />Pure C#/.NET local AI runtime — private LLMs, voice (speech-to-text + text-to-speech), RAG, agents and an OpenAI-compatible server.</div>
             <div><a href="https://github.com/DevOnBike/Overfit">GitHub</a> · <a href="https://www.nuget.org/packages/DevOnBike.Overfit">NuGet</a> · <a href="https://github.com/DevOnBike/Overfit/tree/bielik/Demo/LocalAgentAspNetDemo">Bielik demo</a> · <a href="https://github.com/DevOnBike/Overfit/blob/bielik/COMMERCIAL.md">Commercial</a> · <a href="/privacy.html">Privacy</a><br /><span>devonbike@gmail.com</span></div>
         </div>
     </footer>
