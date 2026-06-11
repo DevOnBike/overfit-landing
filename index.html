@@ -506,7 +506,7 @@
         <div class="container stats">
             <div class="stat"><strong>0 B</strong><span>allocated per token on the decode hot path</span></div>
             <div class="stat"><strong>7.6×</strong><span>faster than ONNX Runtime on single Linear inference</span></div>
-            <div class="stat"><strong>~19 tok/s</strong><span>Qwen2.5‑3B Q4_K_M on CPU</span></div>
+            <div class="stat"><strong>up to ~24 tok/s</strong><span>Qwen2.5‑3B Q4_K_M on CPU</span></div>
             <div class="stat"><strong>~220 MB</strong><span>live managed heap for mmap-backed 3B load path</span></div>
             <div class="stat"><strong>100%</strong><span>pure C# / .NET 10 runtime path</span></div>
             <div class="stat"><strong>1e‑4</strong><span>ONNX output parity vs PyTorch</span></div>
@@ -550,13 +550,13 @@ GET  /metrics</code></pre>
             <div class="grid-4">
                 <div class="card"><div class="icon">🤖</div><h3>Local LLMs</h3><p>Qwen2.5/Qwen3, Llama, Mistral, Phi-3.5/4, Gemma 2, Mixtral &amp; MoE, Bielik and GPT-style models from GGUF, safetensors or ONNX — <strong>0 B/token</strong> decode.</p></div>
                 <div class="card"><div class="icon">🎙️</div><h3>Voice: speech ⇄ text</h3><p>Whisper speech-to-text <em>and</em> text-to-speech with voice cloning — the full voice loop in one .NET process, on the CPU.</p></div>
-                <div class="card"><div class="icon">🔌</div><h3>OpenAI-compatible server</h3><p><code>/v1/chat/completions</code> (SSE), <code>/v1/embeddings</code>, <code>/v1/audio/speech</code> — a dependency-free server, Native-AOT into a <strong>~34 MB</strong> container. Point any OpenAI client at it.</p></div>
+                <div class="card"><div class="icon">🔌</div><h3>OpenAI-compatible server</h3><p><code>/v1/chat/completions</code> (SSE), <code>/v1/embeddings</code>, <code>/v1/audio/speech</code> — a dependency-free server, Native-AOT into a <strong>~34 MB</strong> container that idles at <strong>~0% CPU</strong>. Point any OpenAI client at it.</p></div>
                 <div class="card"><div class="icon">🔎</div><h3>In-process RAG</h3><p>Embeddings, built-in vector store and cosine search without an external vector DB.</p></div>
                 <div class="card"><div class="icon">🛠️</div><h3>C# tool calling</h3><p>Constrained decoding forces a valid tool-call envelope and dispatches straight to your C# delegate.</p></div>
                 <div class="card"><div class="icon">{}</div><h3>Guaranteed JSON</h3><p>Structured output is valid by construction. Invalid tokens cannot be sampled under the active constraint.</p></div>
                 <div class="card"><div class="icon">🧩</div><h3>Pure-managed engine</h3><p>Predictable CPU inference, explicit memory ownership, Native AOT-compatible paths and zero-allocation hot paths.</p></div>
                 <div class="card"><div class="icon">📦</div><h3>Flexible model I/O</h3><p>GGUF, K-quants, safetensors, ONNX, GPT-2 .bin, embeddings, LoRA, OCR and small deep networks.</p></div>
-                <div class="card"><div class="icon">🎯</div><h3>Fine-tuning</h3><p>LoRA stages, autograd training, Adam/SGD, LR schedules, CNNs and gradient checkpointing.</p></div>
+                <div class="card"><div class="icon">🎯</div><h3>Fine-tuning</h3><p>LoRA stages, autograd training, Adam/SGD, LR schedules, CNNs, gradient checkpointing and data-parallel CPU training (a full 60k-image MNIST CNN trains in ~2 s).</p></div>
                 <div class="card"><div class="icon">🔁</div><h3>ONNX import</h3><p>Linear topology plus DAG support, skip connections, ResNet-style models and output parity checks vs PyTorch.</p></div>
             </div>
         </div>
@@ -571,8 +571,8 @@ GET  /metrics</code></pre>
                     <thead><tr><th>Workload</th><th>Headline result</th><th>Allocation</th></tr></thead>
                     <tbody>
                         <tr><td><strong>Single inference Linear(784→10)</strong></td><td>~7.6× faster than ONNX Runtime</td><td>0 B</td></tr>
-                        <tr><td><strong>Qwen2.5‑3B Q4_K_M decode</strong></td><td>~19 tok/s on CPU; RAM footprint in llama.cpp range</td><td>~1 B/token</td></tr>
-                        <tr><td><strong>Bielik-4.5B Q4_K_M preset</strong></td><td>Observed ~11 tok/s in current CPU demo context</td><td>decode hot path target: 0 B/token</td></tr>
+                        <tr><td><strong>Qwen2.5‑3B Q4_K_M decode</strong></td><td>~19 tok/s on CPU, up to ~24 tok/s with the opt-in repacked-GEMV mode; RAM footprint in llama.cpp range</td><td>~1 B/token</td></tr>
+                        <tr><td><strong>Bielik-4.5B Q4_K_M preset</strong></td><td>~17 tok/s on CPU, −36% working set vs same-file llama.cpp</td><td>~1 B/token</td></tr>
                         <tr><td><strong>GPT-2 KV-cache decode</strong></td><td>~6.5× faster than naive O(N²)</td><td>0 B/token</td></tr>
                     </tbody>
                 </table>
